@@ -1,0 +1,33 @@
+{
+  "name": "entity-schema",
+  "description": "Define a schema that represent business entities",
+  "version": "0.0.1",
+  "author": "Paul Serby <paul@serby.net>",
+  "contributors": [
+    {
+      "name": "Paul Serby",
+      "email": "paul@serby.net"
+    },
+    {
+      "name": "Dom Harrington",
+      "email": "dom.harrington@clock.co.uk"
+    }
+  ],
+  "dependencies": {
+    "async": "~0.1",
+    "piton-validity": ">= 0.1.0 < 0.2.0",
+    "piton-string-utils": ">= 0.0.1 < 0.1.0"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "keywords": ["entity", "schema", "data"],
+  "repository": "git://github.com/serby/entity-schema",
+  "main": "lib/entity-schema",
+  "scripts": {
+    "test": "mocha -r should",
+    "prepublish" : "npm prune"
+  },
+  "engines": { "node": ">= 6" }
+}
