@@ -1,60 +1,68 @@
-# entity-schema - Keep your business entities
-Define and manage objects that represent you business entities
+# schemata - Define and manage objects that represent you business entities.
+
+schemata allows you to define schemas to ensure your objects are well formed. This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/) but unlike mongoose schemata has nothing to do with data persistence. This lightweight decoupled approach give the ultimate flexibility and freedom to use the module with in your application.
 
 ## Installation
 
-	$ npm install entity-schema
+  $ npm install schemata
 
 ## Usage
 
+### Creating a basic schema
+
 ```js
-var EntitySchema = require('entity-schema');
+var schemata = require('schemata');
 
-var schema = EntitySchema.({
-	name: {
-		tag: ['update'],
-		name: 'Full Name'
-	},
-	age: {
-		type: 'number',
-		defaultValue: 0
-	},
-	active: {
-		type: 'boolean',
-		defaultValue: true
-	},
-	phoneNumber: {
-		tag: ['update']
-	}
+var contactSchema = schemata({
+  name: {
+    name: 'Full Name'
+  },
+  age: {
+    type: Number
+    defaultValue: 0
+  },
+  active: {
+    type: Boolean,
+    defaultValue: true
+  },
+  phoneNumber: { // If no type is given String will be assumed
+  }
 });
 
-var blank = schema.makeBlank();
-// blank is now equal to:
-//	{
-//		name: null,
-//		age: null,
-//		active: null,
-//		phoneNumber: null
-//	}
+### Creating a new object
 
-var default = schema.makeDefault();
-// default is now equal to:
-//	{
-//		name: null,
-//		age: 0,
-//		active: true,
-//		phoneNumber: null
-//	}
-
-var stripped = schema.stripUnknownProperties({
-	name: 'Dom',
-	extra: 'This should not be here'
-});
-// stripped is now equal to:
-//	{
-//		name: 'Dom'
-//	}
+```js
+var blank = contactSchema.makeBlank();
 ```
+    {
+      name: null,
+      age: null,
+      active: null,
+      phoneNumber: null
+    }
+
+### Creating a new object with the default values
+
+```js
+var default = contactSchema.makeDefault();
+```
+    {
+      name: null,
+      age: 0,
+      active: true,
+      phoneNumber: null
+    }
+### Strip unknown properties from an object
+
+```js
+var stripped = contactSchema.stripUnknownProperties({
+  name: 'Dom',
+  extra: 'This should not be here'
+});
+```
+    {
+      name: 'Dom'
+    }
 
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on [twitter](http://twitter.com/serby)

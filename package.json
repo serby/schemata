@@ -1,6 +1,6 @@
 {
-  "name": "entity-schema",
-  "description": "Define a schema that represent business entities",
+  "name": "schemata",
+  "description": "Define schema that represent business entities",
   "version": "0.0.1",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
@@ -23,11 +23,11 @@
     "should": "*"
   },
   "keywords": ["entity", "schema", "data"],
-  "repository": "git://github.com/serby/entity-schema",
-  "main": "lib/entity-schema",
+  "repository": "git://github.com/serby/schemata.git",
+  "main": "lib/schemata",
   "scripts": {
     "test": "mocha -r should",
     "prepublish" : "npm prune"
   },
-  "engines": { "node": ">= 6" }
+  "engines": { "node": ">= 0.6" }
 }

@@ -1,10 +1,10 @@
-var EntitySchema = require('..')
+var schemata = require('..')
   , validation = require('piton-validity').validation
   , should = require('should')
   ;
 
 function createContactSchema() {
-  var schema = EntitySchema.createSchema({
+  var schema = schemata({
     name: {
       tag: ['update'],
       name: 'Full Name'
@@ -24,14 +24,16 @@ function createContactSchema() {
   return schema;
 }
 
+function createCommentSchema() {
+  return schemata({
+    email: {},
+    comment: {}
+  });
+}
+
 function createBlogSchema() {
 
-  var commentSchema = EntitySchema.createSchema(
-    { email: {}
-    , comment: {}
-  });
-
-  var blogSchema = EntitySchema.createSchema({
+  var blogSchema = schemata({
     title: {
     },
     body: {
@@ -40,14 +42,14 @@ function createBlogSchema() {
       type: createContactSchema()
     },
     comments: {
-      type: EntitySchema.Array(commentSchema)
+      type: schemata.Array(createCommentSchema())
     }
   });
   return blogSchema;
 }
 
 function createArraySchema() {
-  var schema = EntitySchema.createSchema({
+  var schema = schemata({
     images: {
       type: Array
     }
@@ -97,7 +99,7 @@ var typeMap = {
     ]
   };
 
-describe('entity-definition', function() {
+describe('schemata', function() {
 
   describe('#makeBlank()', function() {
 
@@ -112,7 +114,7 @@ describe('entity-definition', function() {
     });
 
     it('creates empty objects for objects type', function() {
-      var schema = EntitySchema.createSchema({
+      var schema = schemata({
         contacts: {
           type: Object
         }
@@ -121,7 +123,7 @@ describe('entity-definition', function() {
     });
 
     it('creates empty arrays for array type', function() {
-      var schema = EntitySchema.createSchema({
+      var schema = schemata({
         images: {
           type: Array
         }
@@ -149,7 +151,7 @@ describe('entity-definition', function() {
   describe('#makeDefault()', function() {
 
     it('without a customer schema creates a empty object', function() {
-      var schema = EntitySchema.createSchema();
+      var schema = schemata();
       schema.makeDefault().should.eql({});
     });
 
@@ -216,10 +218,24 @@ describe('entity-definition', function() {
     });
 
     it('strips out properties from sub-schemas', function() {
+      var schema = createBlogSchema();
+      schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' }})
+        .should.eql({author: { name: 'Paul'} });
+    });
 
+    it('keeps empty array sub-schemas empty', function() {
+      var schema = createBlogSchema();
+      schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: []})
+        .should.eql({ author: { name: 'Paul' },  comments: [] });
     });
 
     it('strips out properties from array sub-schemas', function() {
+      var schema = createBlogSchema()
+        , comment = createCommentSchema().makeBlank()
+        ;
+        comment.extra = 'Hello';
+      schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [comment]})
+        .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null } ] });
     });
 
   });
@@ -440,9 +456,11 @@ describe('entity-definition', function() {
     });
 
     it('Validates sub-schemas', function() {
+      //TODO:
     });
 
     it('Validates array sub-schemas', function() {
+      //TODO:
     });
 
   });
