@@ -28,6 +28,7 @@ var contactSchema = schemata({
   phoneNumber: { // If no type is given String will be assumed
   }
 });
+```
 
 ### Creating a new object
 
@@ -66,6 +67,7 @@ var stripped = contactSchema.stripUnknownProperties({
 
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on [twitter](http://twitter.com/serby)
+
 [Dom Harrington](https://github.com/domharrington/)
 
 ## Licence
