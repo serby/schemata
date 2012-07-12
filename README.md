@@ -1,10 +1,10 @@
-# schemata - Define and manage objects that represent you business entities.
+# schemata - Define and manage objects that represent your business entities.
 
-schemata allows you to define schemas to ensure your objects are well formed. This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/) but unlike mongoose schemata has nothing to do with data persistence. This lightweight decoupled approach give the ultimate flexibility and freedom to use the module with in your application.
+schemata allows you to define schemas to ensure your objects are well formed. This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/) but unlike mongoose schemata has nothing to do with data persistence. This lightweight decoupled approach gives the ultimate flexibility and freedom to use the module with in your application.
 
 ## Installation
 
-  $ npm install schemata
+    npm install schemata
 
 ## Usage
 
