@@ -65,6 +65,18 @@ var stripped = contactSchema.stripUnknownProperties({
       name: 'Dom'
     }
 
+### Validate an object against the schema
+
+```js
+```
+
+### Cast an object to the types defined in the schema
+
+```js
+```
+
+### Get a properties friendly name
+
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on [twitter](http://twitter.com/serby)
 
