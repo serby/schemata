@@ -1,5 +1,6 @@
 var schemata = require('..')
   , validation = require('piton-validity').validation
+  , createPropertyValidator = require('piton-validity').createPropertyValidator
   , should = require('should')
   ;
 
@@ -456,7 +457,52 @@ describe('schemata', function() {
     });
 
     it('Validates sub-schemas', function() {
-      //TODO:
+      var schema = createBlogSchema();
+      schema.schema.author.type.schema.age.validators = {
+        all: [validation.required]
+      };
+      schema.validate(schema.makeBlank(), function(errors) {
+        errors.should.eql({ author: {
+          age: 'Age is required'
+        }});
+      });
+    });
+
+    it('Validates sub-schemas property is not listed in errors when there are no errors', function() {
+      var schema = createBlogSchema();
+      schema.validate(schema.makeBlank(), function(errors) {
+        errors.should.eql({});
+      });
+    });
+
+    it('Validates any defined validators even on sub-schemas', function() {
+      var schema = createBlogSchema();
+      schema.schema.author.validators = {
+        all: [createPropertyValidator(function(value, callback) {
+          callback(false);
+        }, 'Bad')]
+      };
+      schema.validate(schema.makeBlank(), function(errors) {
+        errors.should.eql({ author: 'Bad' });
+      });
+    });
+
+    it('validators failure should prevent sub-schema validation', function() {
+      var schema = createBlogSchema();
+      schema.schema.author.type.schema.age.validators = {
+        all: [createPropertyValidator(function(value, callback) {
+          'This should not get called'.should.equal(false);
+          callback(false);
+        }, 'This should not be seen')]
+      };
+      schema.schema.author.validators = {
+        all: [createPropertyValidator(function(value, callback) {
+          callback(false);
+        }, 'From one of the Validators')]
+      };
+      schema.validate(schema.makeBlank(), function(errors) {
+        errors.should.eql({ author: 'From one of the Validators' });
+      });
     });
 
     it('Validates array sub-schemas', function() {
