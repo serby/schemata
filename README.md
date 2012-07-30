@@ -32,11 +32,11 @@ var contactSchema = schemata({
 
 #### Schema Properties
 
-**name**: (optional) The friendly version of the property name. If omitted a decamlcased version of the property name will be used.
-**type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
-**defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
-**tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
-**validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways.
+* **name**: (optional) The friendly version of the property name. If omitted a decamlcased version of the property name will be used.
+* **type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
+* **defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
+* **tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
+* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways.
 
 ### Creating a new object
 
