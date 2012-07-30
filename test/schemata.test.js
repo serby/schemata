@@ -282,7 +282,7 @@ describe('schemata', function() {
       var schema = createContactSchema();
       (function(){
         schema.cast(undefined);
-      }).should.throw();
+      }).should.throwError();
     });
 
   });
@@ -530,7 +530,7 @@ describe('schemata', function() {
         propertyName = 'Wobble';
       (function(){
         schema.propertyName(propertyName);
-      }).should.throw('No property \'' + propertyName + '\' in schema');
+      }).should.throwError('No property \'' + propertyName + '\' in schema');
     });
 
   });

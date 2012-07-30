@@ -1,3 +1,5 @@
+default: test lint
+
 test:
 	@./node_modules/.bin/mocha \
 		-r should \
@@ -9,4 +11,4 @@ lint-changed:
 lint:
 	@jshint lib test
 
-.PHONY: test lint lint-changed
+.PHONY: default test lint lint-changed
