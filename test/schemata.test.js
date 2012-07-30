@@ -249,7 +249,7 @@ describe('schemata', function() {
         // Even = expected, odd = supplied
         for(var i = 0; i < assertions[type].length; i += 2) {
           var cast;
-          cast = schema.cast(typeMap[type], assertions[type][i + 1]);
+          cast = schema.castProperty(typeMap[type], assertions[type][i + 1]);
           should.strictEqual(cast, assertions[type][i],
             'Failed to cast \'' + type + '\' (test ' + i + ') from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast + '\'');
         }
@@ -259,35 +259,35 @@ describe('schemata', function() {
     it('converts arrays correctly', function() {
       var schema = createArraySchema();
       [[], null, ''].forEach(function(value) {
-        Array.isArray(schema.cast(Array, value)).should.equal(true);
-        schema.cast(Array, value).should.have.lengthOf(0);
+        Array.isArray(schema.castProperty(Array, value)).should.equal(true);
+        schema.castProperty(Array, value).should.have.lengthOf(0);
       });
       [[1], ['a']].forEach(function(value) {
-        Array.isArray(schema.cast(Array, value)).should.equal(true);
-        schema.cast(Array, value).should.have.lengthOf(1);
+        Array.isArray(schema.castProperty(Array, value)).should.equal(true);
+        schema.castProperty(Array, value).should.have.lengthOf(1);
       });
     });
 
     it('converts object correctly', function() {
       var schema = createArraySchema();
       [null, ''].forEach(function(value) {
-        Object.keys(schema.cast(Object, value)).should.have.lengthOf(0);
+        Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0);
       });
       [{a:'b'}].forEach(function(value) {
-        Object.keys(schema.cast(Object, value)).should.have.lengthOf(1);
+        Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(1);
       });
     });
 
     it('throws exception on unknown type', function() {
       var schema = createContactSchema();
       (function(){
-        schema.cast(undefined);
+        schema.castProperty(undefined);
       }).should.throwError();
     });
 
   });
 
-  describe('#castProperties()', function() {
+  describe('#cast()', function() {
 
     it('converts number types of properties correctly', function() {
       var
@@ -296,7 +296,7 @@ describe('schemata', function() {
         cast;
 
       for(var i = 0; i < assertions[type].length; i += 2) {
-        cast = schema.castProperties({ age: assertions[type][i + 1] });
+        cast = schema.cast({ age: assertions[type][i + 1] });
         cast.should.eql({ age: assertions[type][i] },
           'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast.age + '\' ' + JSON.stringify(cast));
       }
@@ -309,7 +309,7 @@ describe('schemata', function() {
       cast;
 
       for(var i = 0; i < assertions[type].length; i += 2) {
-        cast = schema.castProperties({ active: assertions[type][i + 1] });
+        cast = schema.cast({ active: assertions[type][i + 1] });
         cast.should.eql({
           active: assertions[type][i]
         }, 'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast.active + '\'' + JSON.stringify(cast));
@@ -318,7 +318,7 @@ describe('schemata', function() {
 
     it('does not effect untyped properties', function() {
       var schema = createContactSchema();
-      schema.castProperties({ phoneNumber: '555-0923' }).should.eql({
+      schema.cast({ phoneNumber: '555-0923' }).should.eql({
         phoneNumber: '555-0923'
       });
     });
