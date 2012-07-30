@@ -511,7 +511,6 @@ describe('schemata', function() {
 
   });
 
-
   describe('#propertyName()', function() {
 
     it('returns name when available', function() {
