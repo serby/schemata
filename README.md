@@ -99,7 +99,7 @@ var stripped = contactSchema.stripUnknownProperties({
 ```
 
 ## Credits
-[Paul Serby](https://github.com/serby/) follow me on [twitter](http://twitter.com/serby)
+[Paul Serby](https://github.com/serby/) follow me on twitter [@serby](http://twitter.com/serby)
 
 [Dom Harrington](https://github.com/domharrington/)
 
