@@ -102,6 +102,22 @@ var typeMap = {
 
 describe('schemata', function() {
 
+  describe('#schema', function() {
+
+    it('schema should be empty for a default schemata', function() {
+      var empty = schemata();
+      empty.schema.should.eql({});
+    });
+
+    it('schema should be read only', function() {
+      var empty = schemata();
+      empty.schema = { write: 'me' };
+      empty.schema.should.eql({});
+    });
+
+
+  });
+
   describe('#makeBlank()', function() {
 
     it('returns correct empty object with no parameters', function() {
