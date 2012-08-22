@@ -16,7 +16,7 @@
   "dependencies": {
     "async": "~0.1",
     "piton-validity": "~0.1",
-    "piton-string-utils": "~0.0.1"
+    "piton-string-utils": "~0.3"
   },
   "devDependencies": {
     "mocha": "*",
