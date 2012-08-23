@@ -88,7 +88,7 @@ contactSchema.validate(objectToValidate, function(errors){
 });
 ```
 
-Validators are assigned to a property of the schema by adding them as an array to the **validators** property of the object as follows (this is an extension of the example at the top):
+Validators are assigned to a field of the schema by adding them as an array to the **validators** property of the object as follows (this is an extension of the example at the top):
 
 ```js
 name: {
@@ -97,12 +97,10 @@ name: {
 }
 ```
 
-Validators are objects with the following structure:
+Validators are functions that have the following signature:
 
 ```js
-{
-  validate: function(name, value, callback) {}
-}
+function(name, value, callback) {}
 ```
 
 The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with an Error object with the appropriate error message if it fails validation.
@@ -110,10 +108,8 @@ The callback must be called with a falsy value (such as undefined or null) if th
 A full validator example:
 
 ```js
-var required = {
-  validate: function(name, value, callback) {
-    return callback(value ? undefined : new Error(name + ' is required'));
-  }
+var required = function(name, value, callback) {
+  return callback(value ? undefined : new Error(name + ' is required'));
 };
 
 name: {
