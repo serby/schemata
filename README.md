@@ -80,8 +80,51 @@ var stripped = contactSchema.stripUnknownProperties({
 
 ### Validate an object against the schema
 
+Validation is easy in schemata, just call **validate()** on your schema passing in the object to validate:
+
 ```js
+contactSchema.validate(objectToValidate, function(errors){
+  // errors
+});
 ```
+
+Validators are assigned to a property of the schema by adding them as an array to the **validators** property of the object as follows (this is an extension of the example at the top):
+
+```js
+name: {
+  name: 'Full Name',
+  validators: [validator1, validator2]
+}
+```
+
+Validators are objects with the following structure:
+
+```js
+{
+  validate: function(name, value, callback) {}
+}
+```
+
+The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with an Error object with the appropriate error message if it fails validation.
+
+A full validator example:
+
+```js
+var required = {
+  validate: function(name, value, callback) {
+    return callback(value ? undefined : new Error(name + ' is required'));
+  }
+};
+
+name: {
+  name: 'Full Name',
+  validators: [required]
+}
+```
+
+If any of the validators fail then the errors will be returned in the callback from **validate()** with the object key being the field name and the value being the error message.
+
+For a comprehensive set of validators including: email, integer, string length, required & UK postcode. Check out [piton-validity](https://github.com/serby/piton-validity).
 
 ### Cast an object to the types defined in the schema
 
