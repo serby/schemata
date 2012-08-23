@@ -154,11 +154,6 @@ console.log(address.propertyName('addressLine3'));
 // Returns 'Town' because there is a name set
 ```
 
-### Validate an object
-
-```js
-```
-
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on twitter [@serby](http://twitter.com/serby)
 
