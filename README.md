@@ -103,13 +103,13 @@ Validators are functions that have the following signature:
 function(name, value, callback) {}
 ```
 
-The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with an Error object with the appropriate error message if it fails validation.
+The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with a string with the appropriate error message if it fails validation.
 
 A full validator example:
 
 ```js
 var required = function(name, value, callback) {
-  return callback(value ? undefined : new Error(name + ' is required'));
+  return callback(value ? undefined : name + ' is required');
 };
 
 name: {

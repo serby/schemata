@@ -525,6 +525,22 @@ describe('schemata', function() {
       //TODO:
     });
 
+    it('allows error response to be a string instead of Error object', function(done) {
+      var schema = createContactSchema()
+        ;
+
+      schema.schema.name.validators = {
+        all: [function(name, value, callback) {
+          return callback(value ? undefined : name + ' is required');
+        }]
+      };
+
+      schema.validate(schema.makeDefault({ name: '' }), function(errors) {
+        errors.should.eql({name:'Full Name is required'});
+        done();
+      });
+    });
+
   });
 
   describe('#propertyName()', function() {
