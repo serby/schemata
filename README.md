@@ -80,22 +80,121 @@ var stripped = contactSchema.stripUnknownProperties({
 
 ### Validate an object against the schema
 
+Validation is easy in schemata, just call **validate()** on your schema passing in the object to validate:
+
 ```js
+contactSchema.validate(objectToValidate, function(errors){
+  // errors
+});
 ```
+
+Validators are assigned to a field of the schema by adding them as an array to the **validators** property of the object as follows (this is an extension of the example at the top):
+
+```js
+name: {
+  name: 'Full Name',
+  validators: [validator1, validator2]
+}
+```
+
+Validators are functions that have the following signature:
+
+```js
+function(name, value, callback) {}
+```
+
+The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with a string with the appropriate error message if it fails validation.
+
+A full validator example:
+
+```js
+var required = function(name, value, callback) {
+  return callback(value ? undefined : name + ' is required');
+};
+
+name: {
+  name: 'Full Name',
+  validators: [required]
+}
+```
+
+If any of the validators fail then the errors will be returned in the callback from **validate()** with the object key being the field name and the value being the error message.
+
+For a comprehensive set of validators including: email, integer, string length, required & UK postcode. Check out [piton-validity](https://github.com/serby/piton-validity).
 
 ### Cast an object to the types defined in the schema
 
+Type casting is done in schemata using the **cast()** and **castProperty()** functions. **cast()** is used for when you want to cast multiple properties against a schama, **castProperty()** is used if you want to cast one property and explicitly provide the type.
+
 ```js
+var schemata = require('schemata');
+
+var person = schemata({
+  name: {
+    type: String
+  },
+  age: {
+    type: Number
+  },
+  active: {
+    type: Boolean
+  },
+  birthday: {
+    type: Date
+  },
+  friends: {
+    type: Array
+  },
+  extraInfo: {
+    type: Object
+  }
+});
+
+var objectToCast = {
+  name: 123456,
+  age: '83',
+  active: 'no',
+  birthday: '13 February 1991',
+  friends: '',
+  extraInfo: undefined
+};
+
+var casted = person.cast(objectToCast);
+// casted = {
+//   name: '123456',
+//   age: 83,
+//   active: false,
+//   birthday: Date('Wed Feb 13 1991 00:00:00 GMT+0000 (GMT)'),
+//   friends: [],
+//   extraInfo: {}
+// }
 ```
 
 ### Get friendly name for property
 
-```js
-```
+If you want to output the name of a schema property in a human-readable format then you need the **propertyName()** function. If your schema field has a name attribute, then that is returned. If that is not set then the name is obtained by decamelcasing the field name.
 
-### Validate an object
+Consider the following example:
 
 ```js
+var schemata = require('schemata');
+
+var address = schemata({
+  addressLine1: {},
+  addressLine2: {},
+  addressLine3: {
+    name: 'Town'
+  },
+  addressLine4: {
+    name: 'Region'
+  }
+});
+
+console.log(address.propertyName('addressLine1'));
+// Returns 'Address Line 1' because there is no name set
+
+console.log(address.propertyName('addressLine3'));
+// Returns 'Town' because there is a name set
 ```
 
 ## Credits
