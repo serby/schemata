@@ -129,7 +129,29 @@ For a comprehensive set of validators including: email, integer, string length, 
 
 ### Get friendly name for property
 
+If you want to output the name of a schema property in a human-readable format then you need the **propertyName()** function. If your schema field has a name attribute, then that is returned. If that is not set then the name is obtained by decamelcasing the field name.
+
+Consider the following example:
+
 ```js
+var schemata = require('schemata');
+
+var address = schemata({
+  addressLine1: {},
+  addressLine2: {},
+  addressLine3: {
+    name: 'Town'
+  },
+  addressLine4: {
+    name: 'Region'
+  }
+});
+
+console.log(address.propertyName('addressLine1'));
+// Returns 'Address Line 1' because there is no name set
+
+console.log(address.propertyName('addressLine3'));
+// Returns 'Town' because there is a name set
 ```
 
 ### Validate an object
