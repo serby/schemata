@@ -124,7 +124,50 @@ For a comprehensive set of validators including: email, integer, string length, 
 
 ### Cast an object to the types defined in the schema
 
+Type casting is done in schemata using the **cast()** and **castProperty()** functions. **cast()** is used for when you want to cast multiple properties against a schama, **castProperty()** is used if you want to cast one property and explicitly provide the type.
+
 ```js
+var schemata = require('schemata');
+
+var person = schemata({
+  name: {
+    type: String
+  },
+  age: {
+    type: Number
+  },
+  active: {
+    type: Boolean
+  },
+  birthday: {
+    type: Date
+  },
+  friends: {
+    type: Array
+  },
+  extraInfo: {
+    type: Object
+  }
+});
+
+var objectToCast = {
+  name: 123456,
+  age: '83',
+  active: 'no',
+  birthday: '13 February 1991',
+  friends: '',
+  extraInfo: undefined
+};
+
+var casted = person.cast(objectToCast);
+// casted = {
+//   name: '123456',
+//   age: 83,
+//   active: false,
+//   birthday: Date('Wed Feb 13 1991 00:00:00 GMT+0000 (GMT)'),
+//   friends: [],
+//   extraInfo: {}
+// }
 ```
 
 ### Get friendly name for property
