@@ -286,7 +286,7 @@ describe('schemata', function() {
 
     it('converts object correctly', function() {
       var schema = createArraySchema();
-      [null, ''].forEach(function(value) {
+      [null, '', 'hello', [], undefined].forEach(function(value) {
         Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0);
       });
       [{a:'b'}].forEach(function(value) {
