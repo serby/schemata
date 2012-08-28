@@ -111,7 +111,7 @@ describe('schemata', function() {
 
     it('schema should be read only', function() {
       var empty = schemata();
-      empty.schema = { write: 'me' };
+      empty.schema.write = true;
       empty.schema.should.eql({});
     });
 
@@ -354,6 +354,7 @@ describe('schemata', function() {
     it('returns error for missing property', function(done) {
       var schema = createContactSchema();
 
+      schema.schema.name.should.not.have.property('validators');
       schema.schema.name.validators = {
         all: [validation.required.validate]
       };
