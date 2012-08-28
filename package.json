@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on specified schema.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
     {
