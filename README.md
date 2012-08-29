@@ -100,7 +100,7 @@ name: {
 Validators are functions that have the following signature:
 
 ```js
-function(name, value, callback) {}
+function(propertyName, errorPropertyName, object, callback) {}
 ```
 
 The callback must be called with a falsy value (such as undefined or null) if the validation passes, or with a string with the appropriate error message if it fails validation.
@@ -108,8 +108,8 @@ The callback must be called with a falsy value (such as undefined or null) if th
 A full validator example:
 
 ```js
-var required = function(name, value, callback) {
-  return callback(value ? undefined : name + ' is required');
+var required = function(propertyName, errorPropertyName, object, callback) {
+  return callback(value ? undefined : errorPropertyName + ' is required');
 };
 
 name: {
@@ -120,7 +120,7 @@ name: {
 
 If any of the validators fail then the errors will be returned in the callback from **validate()** with the object key being the field name and the value being the error message.
 
-For a comprehensive set of validators including: email, integer, string length, required & UK postcode. Check out [piton-validity](https://github.com/serby/piton-validity).
+For a comprehensive set of validators including: email, integer, string length, required & UK postcode. Check out [validity](https://github.com/serby/validity).
 
 ### Cast an object to the types defined in the schema
 
