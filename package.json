@@ -26,8 +26,8 @@
   "repository": "git://github.com/serby/schemata.git",
   "main": "lib/schemata",
   "scripts": {
-    "test": "mocha -r should",
-    "prepublish" : "npm prune"
+    "test": "./node_modules/.bin/mocha -r should",
+    "prepublish": "npm prune"
   },
   "engines": { "node": ">= 0.6" }
 }
