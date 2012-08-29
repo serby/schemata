@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "async": "~0.1",
-    "piton-validity": "~0.1",
+    "validity": "~0.0",
     "piton-string-utils": "~0.3"
   },
   "devDependencies": {

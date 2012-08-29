@@ -1,6 +1,6 @@
 var schemata = require('..')
-  , validation = require('piton-validity').validation
-  , createPropertyValidator = require('piton-validity').createPropertyValidator
+  , validity = require('validity')
+  , propertyValidator = require('validity/property-validator')
   , should = require('should')
   ;
 
@@ -356,7 +356,7 @@ describe('schemata', function() {
 
       schema.schema.name.should.not.have.property('validators');
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.validate(schema.makeDefault({ name: '' }), 'all', function(errors) {
@@ -367,9 +367,8 @@ describe('schemata', function() {
 
     it('uses the [all] set by default', function(done) {
       var schema = createContactSchema();
-
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.validate(schema.makeDefault({ name: '' }), '', function(errors) {
@@ -382,11 +381,11 @@ describe('schemata', function() {
       var schema = createContactSchema();
 
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.schema.age.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', function(errors) {
@@ -399,11 +398,11 @@ describe('schemata', function() {
       var schema = createContactSchema();
 
       schema.schema.name.validators = {
-        all: [validation.required.validate, validation.length(2, 4).validate]
+        all: [validity.required, validity.length(2, 4)]
       };
 
       schema.validate(schema.makeDefault({ name: 'A' }), 'all', function(errors) {
-        errors.should.eql({name: "Full Name must be between 2 and 4 in length"});
+        errors.should.eql({name: 'Full Name must be between 2 and 4 in length'});
         done();
       });
     });
@@ -413,12 +412,12 @@ describe('schemata', function() {
 
       // Adding required validation to a schema property with a tag
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       // Adding required validation to a schema property without a tag
       schema.schema.age.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.validate(schema.makeBlank(), 'all', 'update', function(errors) {
@@ -433,13 +432,13 @@ describe('schemata', function() {
       var schema = createContactSchema();
 
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.schema.name.tag = ['newTag'];
 
       schema.schema.age.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.schema.age.tag = ['differentTag'];
@@ -457,11 +456,11 @@ describe('schemata', function() {
       var schema = createContactSchema();
 
       schema.schema.name.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.schema.age.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
 
       schema.validate(schema.makeBlank(), function(errors) {
@@ -476,7 +475,7 @@ describe('schemata', function() {
     it('Validates sub-schemas', function() {
       var schema = createBlogSchema();
       schema.schema.author.type.schema.age.validators = {
-        all: [validation.required.validate]
+        all: [validity.required]
       };
       schema.validate(schema.makeBlank(), function(errors) {
         errors.should.eql({ author: {
@@ -495,9 +494,9 @@ describe('schemata', function() {
     it('Validates any defined validators even on sub-schemas', function() {
       var schema = createBlogSchema();
       schema.schema.author.validators = {
-        all: [createPropertyValidator(function(value, callback) {
+        all: [propertyValidator(function(key, object, callback) {
           callback(false);
-        }, 'Bad').validate]
+        }, 'Bad')]
       };
       schema.validate(schema.makeBlank(), function(errors) {
         errors.should.eql({ author: 'Bad' });
@@ -507,32 +506,30 @@ describe('schemata', function() {
     it('validators failure should prevent sub-schema validation', function() {
       var schema = createBlogSchema();
       schema.schema.author.type.schema.age.validators = {
-        all: [createPropertyValidator(function(value, callback) {
+        all: [propertyValidator(function(key, object, callback) {
           'This should not get called'.should.equal(false);
           callback(false);
-        }, 'This should not be seen').validate]
+        }, 'This should not be seen')]
       };
       schema.schema.author.validators = {
-        all: [createPropertyValidator(function(value, callback) {
+        all: [propertyValidator(function(key, object, callback) {
           callback(false);
-        }, 'From one of the Validators').validate]
+        }, 'From one of the Validators')]
       };
       schema.validate(schema.makeBlank(), function(errors) {
         errors.should.eql({ author: 'From one of the Validators' });
       });
     });
 
-    it('Validates array sub-schemas', function() {
-      //TODO:
-    });
+    it('Validates array sub-schemas');
 
     it('allows error response to be a string instead of Error object', function(done) {
       var schema = createContactSchema()
         ;
 
       schema.schema.name.validators = {
-        all: [function(name, value, callback) {
-          return callback(value ? undefined : name + ' is required');
+        all: [function(key, errorProperty, object, callback) {
+          return callback(undefined, object[key] ? undefined : errorProperty + ' is required');
         }]
       };
 
