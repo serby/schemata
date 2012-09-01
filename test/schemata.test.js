@@ -109,13 +109,6 @@ describe('schemata', function() {
       empty.schema.should.eql({});
     });
 
-    it('schema should be read only', function() {
-      var empty = schemata();
-      empty.schema.write = true;
-      empty.schema.should.eql({});
-    });
-
-
   });
 
   describe('#makeBlank()', function() {
@@ -345,7 +338,7 @@ describe('schemata', function() {
 
     it('does not error on schemas without validation', function(done) {
       var schema = createContactSchema();
-      schema.validate(schema.makeDefault({ name: 'Paul' }), 'all', function(errors) {
+      schema.validate(schema.makeDefault({ name: 'Paul' }), 'all', function(error, errors) {
         errors.should.eql({});
         done();
       });
@@ -359,7 +352,7 @@ describe('schemata', function() {
         all: [validity.required]
       };
 
-      schema.validate(schema.makeDefault({ name: '' }), 'all', function(errors) {
+      schema.validate(schema.makeDefault({ name: '' }), 'all', function(error, errors) {
         errors.should.eql({name:'Full Name is required'});
         done();
       });
@@ -371,7 +364,7 @@ describe('schemata', function() {
         all: [validity.required]
       };
 
-      schema.validate(schema.makeDefault({ name: '' }), '', function(errors) {
+      schema.validate(schema.makeDefault({ name: '' }), '', function(error, errors) {
         errors.should.eql({name: 'Full Name is required'});
         done();
       });
@@ -388,7 +381,7 @@ describe('schemata', function() {
         all: [validity.required]
       };
 
-      schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', function(errors) {
+      schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', function(error, errors) {
         errors.should.eql({ name: "Full Name is required" });
         done();
       });
@@ -401,7 +394,7 @@ describe('schemata', function() {
         all: [validity.required, validity.length(2, 4)]
       };
 
-      schema.validate(schema.makeDefault({ name: 'A' }), 'all', function(errors) {
+      schema.validate(schema.makeDefault({ name: 'A' }), 'all', function(error, errors) {
         errors.should.eql({name: 'Full Name must be between 2 and 4 in length'});
         done();
       });
@@ -420,7 +413,7 @@ describe('schemata', function() {
         all: [validity.required]
       };
 
-      schema.validate(schema.makeBlank(), 'all', 'update', function(errors) {
+      schema.validate(schema.makeBlank(), 'all', 'update', function(error, errors) {
         errors.should.eql({
           name: 'Full Name is required'
         });
@@ -443,7 +436,7 @@ describe('schemata', function() {
 
       schema.schema.age.tag = ['differentTag'];
 
-      schema.validate(schema.makeBlank(), 'all', 'newTag', function(errors) {
+      schema.validate(schema.makeBlank(), 'all', 'newTag', function(error, errors) {
         errors.should.eql({
           name: 'Full Name is required'
         });
@@ -463,7 +456,7 @@ describe('schemata', function() {
         all: [validity.required]
       };
 
-      schema.validate(schema.makeBlank(), function(errors) {
+      schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({
           name: 'Full Name is required',
           age: 'Age is required'
@@ -477,7 +470,7 @@ describe('schemata', function() {
       schema.schema.author.type.schema.age.validators = {
         all: [validity.required]
       };
-      schema.validate(schema.makeBlank(), function(errors) {
+      schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({ author: {
           age: 'Age is required'
         }});
@@ -486,7 +479,7 @@ describe('schemata', function() {
 
     it('Validates sub-schemas property is not listed in errors when there are no errors', function() {
       var schema = createBlogSchema();
-      schema.validate(schema.makeBlank(), function(errors) {
+      schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({});
       });
     });
@@ -498,7 +491,7 @@ describe('schemata', function() {
           callback(false);
         }, 'Bad')]
       };
-      schema.validate(schema.makeBlank(), function(errors) {
+      schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({ author: 'Bad' });
       });
     });
@@ -509,15 +502,15 @@ describe('schemata', function() {
         all: [propertyValidator(function(key, object, callback) {
           'This should not get called'.should.equal(false);
           callback(false);
-        }, 'This should not be seen')]
+        }, 'sub-schema property validation (This should not be seen)')]
       };
       schema.schema.author.validators = {
         all: [propertyValidator(function(key, object, callback) {
           callback(false);
-        }, 'From one of the Validators')]
+        }, 'First level property validation')]
       };
-      schema.validate(schema.makeBlank(), function(errors) {
-        errors.should.eql({ author: 'From one of the Validators' });
+      schema.validate(schema.makeBlank(), function(error, errors) {
+        errors.should.eql({ author: 'First level property validation' });
       });
     });
 
@@ -533,7 +526,7 @@ describe('schemata', function() {
         }]
       };
 
-      schema.validate(schema.makeDefault({ name: '' }), function(errors) {
+      schema.validate(schema.makeDefault({ name: '' }), function(error, errors) {
         errors.should.eql({name:'Full Name is required'});
         done();
       });
