@@ -158,6 +158,16 @@ describe('schemata', function() {
       blog.comments.should.be.an.instanceOf(Array)
     })
 
+    it('create new instances for Array type', function() {
+      var schema = createBlogSchema()
+        , blogA = schema.makeBlank()
+        , blogB = schema.makeBlank()
+
+      blogA.comments.push(1)
+      blogA.comments.should.have.lengthOf(1)
+      blogB.comments.should.have.lengthOf(0)
+    })
+
   })
 
   describe('#makeDefault()', function() {
@@ -205,6 +215,16 @@ describe('schemata', function() {
         author: { name: null, age: null, active: null, phoneNumber: null },
         comments: []
       })
+    })
+
+    it('create new instances for Array type', function() {
+      var schema = createBlogSchema()
+        , blogA = schema.makeDefault()
+        , blogB = schema.makeDefault()
+
+      blogA.comments.push(1)
+      blogA.comments.should.have.lengthOf(1)
+      blogB.comments.should.have.lengthOf(0)
     })
   })
 
