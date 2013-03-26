@@ -3,7 +3,6 @@ var schemata = require('..')
   , propertyValidator = require('validity/property-validator')
   , should = require('should')
 
-
 function createContactSchema() {
   var schema = schemata({
     name: {
@@ -535,11 +534,35 @@ describe('schemata', function() {
       })
     })
 
-    it('Validates array sub-schemas')
+    it('Validates array sub-schemas', function (done) {
+      var schema = createBlogSchema()
+        , model = schema.makeBlank()
+        , subSchema = schema.schema.comments.type.arraySchema.schema
+
+      subSchema.email.validators = {
+        all: [validity.required]
+      }
+
+      subSchema.comment.validators = {
+        all: [validity.required]
+      }
+
+      model.comments.push({ email: null, comment: null })
+      model.comments.push({ email: null, comment: 'comment' })
+      model.comments.push({ email: 'dom@test.com', comment: null })
+
+      schema.validate(model, function (error, errors) {
+        errors.comments[0].should.eql({ email: 'Email is required',comment: 'Comment is required' })
+        errors.comments[1].should.eql({ email: 'Email is required' })
+        errors.comments[2].should.eql({ comment: 'Comment is required' })
+
+        done()
+      })
+
+    })
 
     it('allows error response to be a string instead of Error object', function(done) {
       var schema = createContactSchema()
-
 
       schema.schema.name.validators = {
         all: [function(key, errorProperty, object, callback) {
