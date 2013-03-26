@@ -3,7 +3,6 @@ var schemata = require('..')
   , propertyValidator = require('validity/property-validator')
   , should = require('should')
 
-
 function createContactSchema() {
   var schema = schemata({
     name: {
@@ -539,7 +538,6 @@ describe('schemata', function() {
 
     it('allows error response to be a string instead of Error object', function(done) {
       var schema = createContactSchema()
-
 
       schema.schema.name.validators = {
         all: [function(key, errorProperty, object, callback) {
