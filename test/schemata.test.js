@@ -2,6 +2,7 @@ var schemata = require('..')
   , validity = require('validity')
   , propertyValidator = require('validity/property-validator')
   , should = require('should')
+  , async = require('async')
 
 function createContactSchema() {
   var schema = schemata({
@@ -558,7 +559,26 @@ describe('schemata', function() {
 
         done()
       })
+    })
 
+    it('does not try and validate array sub-schemas that are falsy or []', function (done) {
+      var schema = createBlogSchema()
+        , model = schema.makeBlank()
+        , testValues = [undefined, null, '', 0, []]
+        , subSchema = schema.schema.comments.type.arraySchema.schema
+
+      subSchema.email.validators = {
+        all: [validity.required]
+      }
+
+      async.forEach(testValues, function (value, next) {
+        model.comments = value
+
+        schema.validate(model, function (error, errors) {
+          errors.should.eql({})
+          next()
+        })
+      }, done)
     })
 
     it('allows error response to be a string instead of Error object', function(done) {
