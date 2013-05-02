@@ -28,7 +28,9 @@ function createContactSchema() {
 function createCommentSchema() {
   return schemata({
     email: {},
-    comment: {}
+    comment: {
+      tag: ['auto']
+    }
   })
 }
 
@@ -36,14 +38,17 @@ function createBlogSchema() {
 
   var blogSchema = schemata({
     title: {
+      tag: ['auto']
     },
     body: {
+      tag: ['auto']
     },
     author: {
       type: createContactSchema()
     },
-    comments: {
-      type: schemata.Array(createCommentSchema())
+    comments:
+      { type: schemata.Array(createCommentSchema())
+      , tag: ['auto']
     }
   })
   return blogSchema
@@ -268,6 +273,26 @@ describe('schemata', function() {
       comment.extra = 'Hello'
       schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [comment]})
         .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null } ] })
+    })
+
+    it('strips out properties for parent but ignores sub-schemas when "ignoreSubSchemas" is true', function() {
+      var schema = createBlogSchema()
+        , comment = createCommentSchema().makeBlank()
+
+      comment.comment = 'Do not strip out my comment'
+      comment.extra = 'This will be striped as its not in the schema at all'
+      schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto', true)
+        .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment' } ] })
+    })
+
+    it('strips out properties for parent and sub-schemas when "ignoreSubSchemas" is false', function() {
+      var schema = createBlogSchema()
+        , comment = createCommentSchema().makeBlank()
+
+      comment.comment = 'Do not strip out my comment'
+      comment.extra = 'Hello'
+      schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto')
+        .should.eql({ title: 'My Blog',  comments: [{ comment: 'Do not strip out my comment' } ] })
     })
 
   })
