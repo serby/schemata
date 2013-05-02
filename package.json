@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on specified schema.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
     {
@@ -11,6 +11,10 @@
     {
       "name": "Dom Harrington",
       "email": "dom.harrington@clock.co.uk"
+    },
+    {
+      "name": "Tom Smith",
+      "email": "tom.smith@clock.co.uk"
     }
   ],
   "dependencies": {
