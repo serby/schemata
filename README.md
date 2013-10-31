@@ -1,10 +1,9 @@
 # schemata - Define, create, and validate your objects, based on specified schema.
 
-schemata allows you to define schemas to ensure your objects are well formed. This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/) but unlike mongoose schemata has nothing to do with data persistence. This lightweight decoupled approach gives the ultimate flexibility and freedom to use the module with in your application whether you are storing your objects or not.
-
+[![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
 [![build status](https://api.travis-ci.org/serby/schemata.png)](http://travis-ci.org/serby/schemata)
 
-[![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
+schemata allows you to define schemas to ensure your objects are well formed. This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/) but unlike mongoose schemata has nothing to do with data persistence. This lightweight decoupled approach gives the ultimate flexibility and freedom to use the module with in your application whether you are storing your objects or not.
 
 ## Installation
 
