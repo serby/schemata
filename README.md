@@ -4,6 +4,8 @@ schemata allows you to define schemas to ensure your objects are well formed. Th
 
 [![build status](https://api.travis-ci.org/serby/schemata.png)](http://travis-ci.org/serby/schemata)
 
+[![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
+
 ## Installation
 
     npm install schemata
