@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on specified schema.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
     {
@@ -26,12 +26,18 @@
     "mocha": "*",
     "should": "*"
   },
-  "keywords": ["entity", "schema", "data"],
+  "keywords": [
+    "entity",
+    "schema",
+    "data"
+  ],
   "repository": "git://github.com/serby/schemata.git",
   "main": "lib/schemata",
   "scripts": {
     "test": "./node_modules/.bin/mocha -r should",
     "prepublish": "npm prune"
   },
-  "engines": { "node": ">= 0.6" }
+  "engines": {
+    "node": ">= 0.6"
+  }
 }
