@@ -3,6 +3,9 @@
   "description": "Define, create, and validate your business objects, based on specified schema.",
   "version": "0.0.8",
   "author": "Paul Serby <paul@serby.net>",
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org/"
+  },
   "contributors": [
     {
       "name": "Paul Serby",
