@@ -54,6 +54,26 @@ function createBlogSchema() {
   return blogSchema
 }
 
+function createBlogSchemaWithSubSchemaNotInitialised() {
+
+  var blogSchema = schemata({
+    title: {
+      tag: ['auto']
+    },
+    body: {
+      tag: ['auto']
+    },
+    author: {
+      type: createContactSchema()
+    },
+    comments:
+      { type: schemata.Array(createCommentSchema)
+      , tag: ['auto']
+    }
+  })
+  return blogSchema
+}
+
 function createArraySchema() {
   var schema = schemata({
     images: {
@@ -584,6 +604,27 @@ describe('schemata', function() {
 
         done()
       })
+    })
+
+
+    it('should cause an error if a subSchema is passed un-invoked', function (done) {
+      var schema = createBlogSchemaWithSubSchemaNotInitialised()
+        , model = schema.makeBlank()
+        , testValues = [undefined, null, '', 0, []]
+        , subSchema = schema.schema.comments.type.arraySchema.schema
+
+      subSchema.email.validators = {
+        all: [validity.required]
+      }
+
+      async.forEach(testValues, function (value, next) {
+        model.comments = value
+
+        schema.validate(model, function (error, errors) {
+          errors.should.eql({})
+          next()
+        })
+      }, done)
     })
 
     it('does not try and validate array sub-schemas that are falsy or []', function (done) {
