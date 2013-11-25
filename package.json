@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on specified schema.",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "Paul Serby <paul@serby.net>",
   "publishConfig": {
     "registry": "http://registry.npmjs.org/"
