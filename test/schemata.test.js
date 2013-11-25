@@ -237,7 +237,20 @@ describe('schemata', function() {
       schema.makeDefault().should.eql({
         title: null,
         body: null,
-        author: { name: null, age: null, active: null, phoneNumber: null },
+        author: { name: null, age: 0, active: true, phoneNumber: null },
+        comments: []
+      })
+    })
+
+    it('extends given object correctly for sub-schemas', function() {
+      var schema = createBlogSchema()
+      schema.makeDefault({
+        title: 'Mr. Blogger’s Post',
+        author: { name: 'Mr. Blogger' }
+      }).should.eql({
+        title: 'Mr. Blogger’s Post',
+        body: null,
+        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null },
         comments: []
       })
     })
