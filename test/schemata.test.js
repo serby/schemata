@@ -575,7 +575,7 @@ describe('schemata', function() {
       })
     })
 
-    it('validators failure should prevent sub-schema validation', function() {
+    it('validators failure should prevent their sub-schema validation', function() {
       var schema = createBlogSchema()
       schema.schema.author.type.schema.age.validators = {
         all: [propertyValidator(function(key, object, callback) {
@@ -590,6 +590,35 @@ describe('schemata', function() {
       }
       schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({ author: 'First level property validation' })
+      })
+    })
+
+    it('validators failure should not prevent other properties’ sub-schemas from validating', function(done) {
+      // this is an edge case, and having the required validator on author is crucial. without it,
+      // the bug won’t manifest itself
+      var schema = createBlogSchema()
+      schema.schema.title.validators = {
+        all: [propertyValidator(function(key, object, callback) {
+          callback(false)
+        }, 'First level property validation failure')]
+      }
+
+      schema.schema.author.type.schema.age.validators = {
+        all: [propertyValidator(function(key, object, callback) {
+          callback(false)
+        }, 'sub-schema property validation')]
+      }
+
+      schema.schema.author.validators = {
+        all: [ validity.required ]
+      }
+
+      schema.validate(schema.makeBlank(), function(error, errors) {
+        errors.should.eql({
+          author: { age: 'sub-schema property validation' }
+        , title: 'First level property validation failure'
+        })
+        done(error)
       })
     })
 
