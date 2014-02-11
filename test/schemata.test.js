@@ -20,7 +20,8 @@ function createContactSchema() {
     },
     phoneNumber: {
       tag: ['update']
-    }
+    },
+    dateOfBirth: { type: Date }
   })
   return schema
 }
@@ -30,7 +31,8 @@ function createCommentSchema() {
     email: {},
     comment: {
       tag: ['auto']
-    }
+    },
+    created: { type: Date }
   })
 }
 
@@ -146,7 +148,8 @@ describe('schemata', function() {
         name: null,
         age: null,
         active: null,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -208,7 +211,8 @@ describe('schemata', function() {
         name: null,
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -218,7 +222,8 @@ describe('schemata', function() {
         name: 'Paul',
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -228,7 +233,8 @@ describe('schemata', function() {
         name: 'Paul',
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -237,7 +243,7 @@ describe('schemata', function() {
       schema.makeDefault().should.eql({
         title: null,
         body: null,
-        author: { name: null, age: 0, active: true, phoneNumber: null },
+        author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null },
         comments: []
       })
     })
@@ -250,7 +256,7 @@ describe('schemata', function() {
       }).should.eql({
         title: 'Mr. Blogger’s Post',
         body: null,
-        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null },
+        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
         comments: []
       })
     })
@@ -305,7 +311,7 @@ describe('schemata', function() {
 
       comment.extra = 'Hello'
       schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [comment]})
-        .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null } ] })
+        .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null, created: null } ] })
     })
 
     it('strips out properties for parent but ignores sub-schemas when "ignoreSubSchemas" is true', function() {
@@ -315,7 +321,7 @@ describe('schemata', function() {
       comment.comment = 'Do not strip out my comment'
       comment.extra = 'This will be striped as its not in the schema at all'
       schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto', true)
-        .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment' } ] })
+        .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment', created: null } ] })
     })
 
     it('strips out properties for parent and sub-schemas when "ignoreSubSchemas" is false', function() {
@@ -374,10 +380,6 @@ describe('schemata', function() {
       }).should.throwError()
     })
 
-  })
-
-  describe('#cast()', function() {
-
     it('converts number types of properties correctly', function() {
       var
         schema = createContactSchema(),
@@ -409,6 +411,28 @@ describe('schemata', function() {
       schema.cast({ phoneNumber: '555-0923' }).should.eql({
         phoneNumber: '555-0923'
       })
+    })
+
+    it('casts properties that have a subschema', function () {
+      var schema = createBlogSchema()
+        , obj = schema.cast(
+            { title: 'My Blog'
+            , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
+            , comments: []
+            })
+      obj.author.dateOfBirth.should.be.instanceOf(Date)
+    })
+
+    it('casts properties that are an array of subschemas', function () {
+      var schema = createBlogSchema()
+        , obj = schema.cast(
+            { title: 'My Blog'
+            , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
+            , comments: [ { created: (new Date()).toISOString() } ]
+            })
+
+      obj.comments[0].created.should.be.instanceOf(Date)
+
     })
 
   })
