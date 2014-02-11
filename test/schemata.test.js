@@ -365,12 +365,13 @@ describe('schemata', function() {
 
     it('converts object correctly', function() {
       var schema = createArraySchema();
-      [null, '', 'hello', [], undefined].forEach(function(value) {
+      ['', 'hello', [], undefined].forEach(function(value) {
         Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0)
       });
       [{a:'b'}].forEach(function(value) {
         Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(1)
       })
+      true.should.equal(schema.castProperty(Object, null) === null)
     })
 
     it('throws exception on unknown type', function() {
@@ -728,7 +729,7 @@ describe('schemata', function() {
       })
     })
 
-    it.only('should not call the callback multiple times when omitting optional args', function (done) {
+    it('should not call the callback multiple times when omitting optional args', function (done) {
       var schema = createBlogSchema()
       schema.validate(schema.makeDefault({ comments: [ {}, {} ] }), 'all', function () {
         done()
