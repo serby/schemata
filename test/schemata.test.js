@@ -728,6 +728,13 @@ describe('schemata', function() {
       })
     })
 
+    it.only('should not call the callback multiple times when omitting optional args', function (done) {
+      var schema = createBlogSchema()
+      schema.validate(schema.makeDefault({ comments: [ {}, {} ] }), 'all', function () {
+        done()
+      })
+    })
+
   })
 
   describe('#propertyName()', function() {
