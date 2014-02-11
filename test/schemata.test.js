@@ -374,10 +374,6 @@ describe('schemata', function() {
       }).should.throwError()
     })
 
-  })
-
-  describe('#cast()', function() {
-
     it('converts number types of properties correctly', function() {
       var
         schema = createContactSchema(),
