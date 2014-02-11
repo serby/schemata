@@ -20,7 +20,8 @@ function createContactSchema() {
     },
     phoneNumber: {
       tag: ['update']
-    }
+    },
+    dateOfBirth: { type: Date }
   })
   return schema
 }
@@ -30,7 +31,8 @@ function createCommentSchema() {
     email: {},
     comment: {
       tag: ['auto']
-    }
+    },
+    created: { type: Date }
   })
 }
 
@@ -146,7 +148,8 @@ describe('schemata', function() {
         name: null,
         age: null,
         active: null,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -208,7 +211,8 @@ describe('schemata', function() {
         name: null,
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -218,7 +222,8 @@ describe('schemata', function() {
         name: 'Paul',
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -228,7 +233,8 @@ describe('schemata', function() {
         name: 'Paul',
         age: 0,
         active: true,
-        phoneNumber: null
+        phoneNumber: null,
+        dateOfBirth: null
       })
     })
 
@@ -237,7 +243,7 @@ describe('schemata', function() {
       schema.makeDefault().should.eql({
         title: null,
         body: null,
-        author: { name: null, age: 0, active: true, phoneNumber: null },
+        author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null },
         comments: []
       })
     })
@@ -250,7 +256,7 @@ describe('schemata', function() {
       }).should.eql({
         title: 'Mr. Blogger’s Post',
         body: null,
-        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null },
+        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
         comments: []
       })
     })
@@ -305,7 +311,7 @@ describe('schemata', function() {
 
       comment.extra = 'Hello'
       schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [comment]})
-        .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null } ] })
+        .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null, created: null } ] })
     })
 
     it('strips out properties for parent but ignores sub-schemas when "ignoreSubSchemas" is true', function() {
@@ -315,7 +321,7 @@ describe('schemata', function() {
       comment.comment = 'Do not strip out my comment'
       comment.extra = 'This will be striped as its not in the schema at all'
       schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto', true)
-        .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment' } ] })
+        .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment', created: null } ] })
     })
 
     it('strips out properties for parent and sub-schemas when "ignoreSubSchemas" is false', function() {
@@ -374,10 +380,6 @@ describe('schemata', function() {
       }).should.throwError()
     })
 
-  })
-
-  describe('#cast()', function() {
-
     it('converts number types of properties correctly', function() {
       var
         schema = createContactSchema(),
@@ -409,6 +411,28 @@ describe('schemata', function() {
       schema.cast({ phoneNumber: '555-0923' }).should.eql({
         phoneNumber: '555-0923'
       })
+    })
+
+    it('casts properties that have a subschema', function () {
+      var schema = createBlogSchema()
+        , obj = schema.cast(
+            { title: 'My Blog'
+            , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
+            , comments: []
+            })
+      obj.author.dateOfBirth.should.be.instanceOf(Date)
+    })
+
+    it('casts properties that are an array of subschemas', function () {
+      var schema = createBlogSchema()
+        , obj = schema.cast(
+            { title: 'My Blog'
+            , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
+            , comments: [ { created: (new Date()).toISOString() } ]
+            })
+
+      obj.comments[0].created.should.be.instanceOf(Date)
+
     })
 
   })
@@ -575,7 +599,7 @@ describe('schemata', function() {
       })
     })
 
-    it('validators failure should prevent sub-schema validation', function() {
+    it('validators failure should prevent their sub-schema validation', function() {
       var schema = createBlogSchema()
       schema.schema.author.type.schema.age.validators = {
         all: [propertyValidator(function(key, object, callback) {
@@ -590,6 +614,35 @@ describe('schemata', function() {
       }
       schema.validate(schema.makeBlank(), function(error, errors) {
         errors.should.eql({ author: 'First level property validation' })
+      })
+    })
+
+    it('validators failure should not prevent other properties’ sub-schemas from validating', function(done) {
+      // this is an edge case, and having the required validator on author is crucial. without it,
+      // the bug won’t manifest itself
+      var schema = createBlogSchema()
+      schema.schema.title.validators = {
+        all: [propertyValidator(function(key, object, callback) {
+          callback(false)
+        }, 'First level property validation failure')]
+      }
+
+      schema.schema.author.type.schema.age.validators = {
+        all: [propertyValidator(function(key, object, callback) {
+          callback(false)
+        }, 'sub-schema property validation')]
+      }
+
+      schema.schema.author.validators = {
+        all: [ validity.required ]
+      }
+
+      schema.validate(schema.makeBlank(), function(error, errors) {
+        errors.should.eql({
+          author: { age: 'sub-schema property validation' }
+        , title: 'First level property validation failure'
+        })
+        done(error)
       })
     })
 
