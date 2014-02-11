@@ -419,7 +419,7 @@ describe('schemata', function() {
             { title: 'My Blog'
             , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
             , comments: []
-            }, 'auto', true)
+            })
       obj.author.dateOfBirth.should.be.instanceOf(Date)
     })
 
@@ -429,7 +429,7 @@ describe('schemata', function() {
             { title: 'My Blog'
             , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
             , comments: [ { created: (new Date()).toISOString() } ]
-            }, 'auto', true)
+            })
 
       obj.comments[0].created.should.be.instanceOf(Date)
 
