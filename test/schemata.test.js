@@ -85,6 +85,40 @@ function createArraySchema() {
   return schema
 }
 
+function asyncValidator(key, name, object, callback) {
+  process.nextTick(function () {
+    return callback(null, undefined)
+  })
+}
+
+function createAsyncValidationSubschema() {
+  return schemata(
+    { id:
+      { type: String
+      , validators:
+        { all: [ validity.required, asyncValidator ]
+        }
+      }
+    , quantity:
+      { type: String
+      , validators:
+        { all: [ validity.required ]
+        }
+      }
+    })
+}
+
+function createSchemaWithAsyncSubSchema() {
+  return schemata(
+    { items:
+      { type: schemata.Array(createAsyncValidationSubschema)
+      , validators:
+        { all: [ validity.required ]
+        }
+      }
+    })
+}
+
 // Casting
 var typeMap = {
     'string': String,
@@ -673,6 +707,26 @@ describe('schemata', function() {
       })
     })
 
+    it('Validates array sub-schemas and maintains order of errors for async validators', function (done) {
+      var schema = createSchemaWithAsyncSubSchema()
+        , model =
+          { items:
+            [ { id: '1', quantity: '' }
+            , { id: '', quantity: '' }
+            ]
+          }
+        , validationErrors =
+          { items:
+            { 0: { quantity: 'Quantity is required' }
+            , 1: { id: 'Id is required', quantity: 'Quantity is required' }
+            }
+          }
+
+      schema.validate(model, function (err, errors) {
+        errors.should.eql(validationErrors)
+        done()
+      })
+    })
 
     it('should cause an error if a subSchema is passed un-invoked', function (done) {
       var schema = createBlogSchemaWithSubSchemaNotInitialised()
