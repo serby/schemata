@@ -1,2 +1,4 @@
 node_modules
 coverage
+lib/schemata.js
+test/schemata.test.js
