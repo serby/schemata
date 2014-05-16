@@ -7,7 +7,6 @@
 , "devel": true
 , "eqeqeq": true
 , "eqnull": true
-, "es5": false
 , "evil": false
 , "immed": false
 , "indent": 2
@@ -18,18 +17,24 @@
 , "maxcomplexity": 6
 , "maxdepth": 4
 , "maxstatements": 25
+, "maxlen": 120
 , "newcap": true
 , "node": true
 , "noempty": false
 , "nonew": true
+, "predef":
+  [ "describe"
+  , "it"
+  , "before"
+  , "beforeEach"
+  , "after"
+  , "afterEach"
+  ]
 , "quotmark": "single"
 , "smarttabs": true
 , "strict": false
 , "trailing": false
 , "undef": true
 , "unused": true
-, "predef":
-  [ "it"
-  , "describe"
-  ]
+, "-W069": true
 }
