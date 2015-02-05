@@ -3,6 +3,7 @@ var schemata = require('..')
   , propertyValidator = require('validity/property-validator')
   , should = require('should')
   , async = require('async')
+  , assert = require('assert')
 
 function createContactSchema() {
   var schema = schemata({
@@ -612,6 +613,26 @@ describe('schemata', function() {
         errors.should.eql({ author: {
           age: 'Age is required'
         }})
+      })
+    })
+
+    it('validates sub-schemas where subschema is returned from the type property function', function (done) {
+      var schema = createBlogSchema()
+        , ageRequiredContactSchema = createContactSchema()
+        , object = { author: 1 }
+
+      ageRequiredContactSchema.schema.age.validators = {
+        all: [ validity.required ]
+      }
+
+      schema.schema.author.type = function (obj) {
+        assert.deepEqual(obj, object)
+        return ageRequiredContactSchema
+      }
+
+      schema.validate(object, function(error, errors) {
+        assert.deepEqual(errors, { author: { age: 'Age is required' } })
+        return done()
       })
     })
 

@@ -349,10 +349,12 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
 
       if (!validateSubschemas) return cb()
 
-      // In order to validate, type must be a schemata instance
-      if (!isSchemata(property.type)) return cb()
+      var type = typeof property.type === 'function' ? property.type(entityObject) : property.type
 
-      return property.type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
+      // In order to validate, type must be a schemata instance
+      if (!isSchemata(type)) return cb()
+
+      return type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
         if (Object.keys(subSchemaErrors).length > 0) errors[key] = subSchemaErrors
         cb(error)
       })
