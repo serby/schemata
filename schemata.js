@@ -5,6 +5,7 @@ module.exports.Array = require('./lib/array')
 var hasTag = require('./lib/has-tag')
   , isSchemata = require('./lib/is-schemata')
   , isSchemataArray = require('./lib/is-array')
+  , getType = require('./lib/get-type')
 
   , castArray = require('./lib/casters/array')
   , castBoolean = require('./lib/casters/boolean')
@@ -40,7 +41,7 @@ Schemata.prototype.makeBlank = function () {
 
   Object.keys(this.schema).forEach(function (key) {
 
-    var type = this.schema[key].type
+    var type = getType(this.schema[key].type)
 
     if (typeof type === 'object') {
 
@@ -92,10 +93,11 @@ Schemata.prototype.makeDefault = function (existingEntity) {
 
     var property = this.schema[key]
       , existingValue = existingEntity[key]
+      , type = getType(property.type, existingEntity)
 
     // If the property is a schemata instance use its makeDefault() function
-    if (isSchemata(property.type)) {
-      newEntity[key] = property.type.makeDefault(existingValue)
+    if (isSchemata(type)) {
+      newEntity[key] = type.makeDefault(existingValue)
       return
     }
 
@@ -148,16 +150,18 @@ Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreT
     // the schema but doesn't have the given tag, don't keep it
     if (typeof property === 'undefined' || !hasTag(this.schema, key, tag)) return
 
-    // If this property is of a primitive type, keep it as is
-    if (typeof property.type !== 'object') {
-      newEntity[key] = entityObject[key]
+    var type = getType(property.type, entityObject)
+
+    // If the type is a schemata instance use its stripUnknownProperties() function
+    if (isSchemata(type)) {
+      subSchemaTag = ignoreTagForSubSchemas ? undefined : tag
+      newEntity[key] = type.stripUnknownProperties(entityObject[key], subSchemaTag, ignoreTagForSubSchemas)
       return
     }
 
-    // If the type is a schemata instance use its stripUnknownProperties() function
-    if (isSchemata(property.type)) {
-      subSchemaTag = ignoreTagForSubSchemas ? undefined : tag
-      newEntity[key] = property.type.stripUnknownProperties(entityObject[key], subSchemaTag, ignoreTagForSubSchemas)
+    // If this property is of a primitive type, keep it as is
+    if (typeof property.type !== 'object') {
+      newEntity[key] = entityObject[key]
       return
     }
 
@@ -201,7 +205,8 @@ Schemata.prototype.castProperty = function (type, value) {
   // First check whether the type of this property is
   // a sub-schema, or an array of sub-schemas
 
-  if (isSchemata(type)) return type.cast(value)
+  var subSchema = getType(type, value)
+  if (isSchemata(subSchema)) return subSchema.cast(value)
 
   if (isSchemataArray(type)) {
     if (!value) return null
@@ -349,10 +354,12 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
 
       if (!validateSubschemas) return cb()
 
-      // In order to validate, type must be a schemata instance
-      if (!isSchemata(property.type)) return cb()
+      var type = getType(property.type, entityObject)
 
-      return property.type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
+      // In order to validate, type must be a schemata instance
+      if (!isSchemata(type)) return cb()
+
+      return type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
         if (Object.keys(subSchemaErrors).length > 0) errors[key] = subSchemaErrors
         cb(error)
       })
