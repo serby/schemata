@@ -22,22 +22,23 @@ describe('#cast()', function() {
     var schema = createContactSchema()
     Object.keys(assertions).forEach(function(type) {
       // Even = expected, odd = supplied
-      for(var i = 0; i < assertions[type].length; i += 2) {
+      for (var i = 0; i < assertions[type].length; i += 2) {
         var cast
         cast = schema.castProperty(typeMap[type], assertions[type][i + 1])
-        should.strictEqual(cast, assertions[type][i],
-          'Failed to cast \'' + type + '\' (test ' + i + ') from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast + '\'')
+        should.strictEqual(cast, assertions[type][i]
+          , 'Failed to cast \'' + type + '\' (test ' + i + ') from \''
+            + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast + '\'')
       }
     })
   })
 
   it('converts arrays correctly', function() {
     var schema = createArraySchema();
-    [[], null, ''].forEach(function(value) {
+    [ [], null, '' ].forEach(function(value) {
       Array.isArray(schema.castProperty(Array, value)).should.equal(true)
       schema.castProperty(Array, value).should.have.lengthOf(0)
     });
-    [[1], ['a']].forEach(function(value) {
+    [ [ 1 ], [ 'a' ] ].forEach(function(value) {
       Array.isArray(schema.castProperty(Array, value)).should.equal(true)
       schema.castProperty(Array, value).should.have.lengthOf(1)
     })
@@ -45,10 +46,10 @@ describe('#cast()', function() {
 
   it('converts object correctly', function() {
     var schema = createArraySchema();
-    ['', 'hello', [], undefined].forEach(function(value) {
+    [ '', 'hello', [], undefined ].forEach(function(value) {
       Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0)
     });
-    [{a:'b'}].forEach(function(value) {
+    [ { a:'b' } ].forEach(function(value) {
       Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(1)
     })
     true.should.equal(schema.castProperty(Object, null) === null)
@@ -62,15 +63,15 @@ describe('#cast()', function() {
   })
 
   it('converts number types of properties correctly', function() {
-    var
-      schema = createContactSchema(),
-      type = 'number',
-      cast
+    var schema = createContactSchema()
+      , type = 'number'
+      , cast
 
-    for(var i = 0; i < assertions[type].length; i += 2) {
+    for (var i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ age: assertions[type][i + 1] })
-      cast.should.eql({ age: assertions[type][i] },
-        'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast.age + '\' ' + JSON.stringify(cast))
+      cast.should.eql({ age: assertions[type][i] }
+        , 'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \''
+          + assertions[type][i] + '\' instead got \'' + cast.age + '\' ' + JSON.stringify(cast))
     }
   })
 
@@ -79,11 +80,12 @@ describe('#cast()', function() {
       , type = 'boolean'
       , cast
 
-    for(var i = 0; i < assertions[type].length; i += 2) {
+    for (var i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ active: assertions[type][i + 1] })
       cast.should.eql({
         active: assertions[type][i]
-      }, 'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \'' + assertions[type][i] + '\' instead got \'' + cast.active + '\'' + JSON.stringify(cast))
+      }, 'Failed to cast \'' + type + '\' from \'' + assertions[type][i + 1] + '\' to \''
+      + assertions[type][i] + '\' instead got \'' + cast.active + '\'' + JSON.stringify(cast))
     }
   })
 

@@ -17,7 +17,7 @@ describe('#propertyName()', function() {
     var schema = createContactSchema()
       , propertyName = 'Wobble';
 
-    (function(){
+    (function() {
       schema.propertyName(propertyName)
     }).should.throwError('No property \'' + propertyName + '\' in schema')
   })

@@ -7,13 +7,13 @@ describe('#makeBlank()', function() {
 
   it('returns correct empty object with no parameters', function() {
     var schema = createContactSchema()
-    schema.makeBlank().should.eql({
-      name: null,
-      age: null,
-      active: null,
-      phoneNumber: null,
-      dateOfBirth: null
-    })
+    schema.makeBlank().should.eql(
+      { name: null
+      , age: null
+      , active: null
+      , phoneNumber: null
+      , dateOfBirth: null
+      })
   })
 
   it('creates empty objects for objects type', function() {

@@ -9,23 +9,15 @@ var schemata = require('../')
   , createCommentSchema = helpers.createCommentSchema
 
 function createBlogSchemaWithSubSchemaNotInitialised() {
-
-  var blogSchema = schemata({
-    title: {
-      tag: ['auto']
-    },
-    body: {
-      tag: ['auto']
-    },
-    author: {
-      type: createContactSchema()
-    },
-    comments:
+  return schemata(
+    { title: { tag: [ 'auto' ] }
+    , body: { tag: [ 'auto' ] }
+    , author: { type: createContactSchema() }
+    , comments:
       { type: schemata.Array(createCommentSchema)
-      , tag: ['auto']
-    }
-  })
-  return blogSchema
+      , tag: [ 'auto' ]
+      }
+    })
 }
 
 function asyncValidator(key, name, object, callback) {
@@ -77,11 +69,11 @@ describe('#validate()', function() {
 
     schema.schema.name.should.not.have.property('validators')
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.validate(schema.makeDefault({ name: '' }), 'all', function(error, errors) {
-      errors.should.eql({name:'Full Name is required'})
+      errors.should.eql({ name:'Full Name is required' })
       done()
     })
   })
@@ -89,11 +81,11 @@ describe('#validate()', function() {
   it('uses the [all] set by default', function(done) {
     var schema = createContactSchema()
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.validate(schema.makeDefault({ name: '' }), '', function(error, errors) {
-      errors.should.eql({name: 'Full Name is required'})
+      errors.should.eql({ name: 'Full Name is required' })
       done()
     })
   })
@@ -102,11 +94,11 @@ describe('#validate()', function() {
     var schema = createContactSchema()
 
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.schema.age.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', function(error, errors) {
@@ -119,11 +111,11 @@ describe('#validate()', function() {
     var schema = createContactSchema()
 
     schema.schema.name.validators = {
-      all: [validity.required, validity.length(2, 4)]
+      all: [ validity.required , validity.length(2, 4) ]
     }
 
     schema.validate(schema.makeDefault({ name: 'A' }), 'all', function(error, errors) {
-      errors.should.eql({name: 'Full Name must be between 2 and 4 in length'})
+      errors.should.eql({ name: 'Full Name must be between 2 and 4 in length' })
       done()
     })
   })
@@ -133,12 +125,12 @@ describe('#validate()', function() {
 
     // Adding required validation to a schema property with a tag
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     // Adding required validation to a schema property without a tag
     schema.schema.age.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.validate(schema.makeBlank(), 'all', 'update', function(error, errors) {
@@ -153,16 +145,16 @@ describe('#validate()', function() {
     var schema = createContactSchema()
 
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
-    schema.schema.name.tag = ['newTag']
+    schema.schema.name.tag = [ 'newTag' ]
 
     schema.schema.age.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
-    schema.schema.age.tag = ['differentTag']
+    schema.schema.age.tag = [ 'differentTag' ]
 
     schema.validate(schema.makeBlank(), 'all', 'newTag', function(error, errors) {
       errors.should.eql({
@@ -177,18 +169,18 @@ describe('#validate()', function() {
     var schema = createContactSchema()
 
     schema.schema.name.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.schema.age.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     schema.validate(schema.makeBlank(), function(error, errors) {
-      errors.should.eql({
-        name: 'Full Name is required',
-        age: 'Age is required'
-      })
+      errors.should.eql(
+        { name: 'Full Name is required'
+        , age: 'Age is required'
+        })
       done()
     })
   })
@@ -196,12 +188,12 @@ describe('#validate()', function() {
   it('Validates sub-schemas', function() {
     var schema = createBlogSchema()
     schema.schema.author.type.schema.age.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
     schema.validate(schema.makeBlank(), function(error, errors) {
       errors.should.eql({ author: {
         age: 'Age is required'
-      }})
+      } })
     })
   })
 
@@ -235,9 +227,9 @@ describe('#validate()', function() {
   it('Validates any defined validators even on sub-schemas', function() {
     var schema = createBlogSchema()
     schema.schema.author.validators = {
-      all: [propertyValidator(function(key, object, callback) {
+      all: [ propertyValidator(function(key, object, callback) {
         callback(false)
-      }, 'Bad')]
+      }, 'Bad') ]
     }
     schema.validate(schema.makeBlank(), function(error, errors) {
       errors.should.eql({ author: 'Bad' })
@@ -247,15 +239,15 @@ describe('#validate()', function() {
   it('validators failure should prevent their sub-schema validation', function() {
     var schema = createBlogSchema()
     schema.schema.author.type.schema.age.validators = {
-      all: [propertyValidator(function(key, object, callback) {
+      all: [ propertyValidator(function(key, object, callback) {
         'This should not get called'.should.equal(false)
         callback(false)
-      }, 'sub-schema property validation (This should not be seen)')]
+      }, 'sub-schema property validation (This should not be seen)') ]
     }
     schema.schema.author.validators = {
-      all: [propertyValidator(function(key, object, callback) {
+      all: [ propertyValidator(function(key, object, callback) {
         callback(false)
-      }, 'First level property validation')]
+      }, 'First level property validation') ]
     }
     schema.validate(schema.makeBlank(), function(error, errors) {
       errors.should.eql({ author: 'First level property validation' })
@@ -267,15 +259,15 @@ describe('#validate()', function() {
     // the bug won’t manifest itself
     var schema = createBlogSchema()
     schema.schema.title.validators = {
-      all: [propertyValidator(function(key, object, callback) {
+      all: [ propertyValidator(function(key, object, callback) {
         callback(false)
-      }, 'First level property validation failure')]
+      }, 'First level property validation failure') ]
     }
 
     schema.schema.author.type.schema.age.validators = {
-      all: [propertyValidator(function(key, object, callback) {
+      all: [ propertyValidator(function(key, object, callback) {
         callback(false)
-      }, 'sub-schema property validation')]
+      }, 'sub-schema property validation') ]
     }
 
     schema.schema.author.validators = {
@@ -297,11 +289,11 @@ describe('#validate()', function() {
       , subSchema = schema.schema.comments.type.arraySchema.schema
 
     subSchema.email.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     subSchema.comment.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     model.comments.push({ email: null, comment: null })
@@ -341,11 +333,11 @@ describe('#validate()', function() {
   it('should cause an error if a subSchema is passed un-invoked', function (done) {
     var schema = createBlogSchemaWithSubSchemaNotInitialised()
       , model = schema.makeBlank()
-      , testValues = [undefined, null, '', 0, []]
+      , testValues = [ undefined, null, '', 0, [] ]
       , subSchema = schema.schema.comments.type.arraySchema.schema
 
     subSchema.email.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     async.forEach(testValues, function (value, next) {
@@ -361,11 +353,11 @@ describe('#validate()', function() {
   it('does not try and validate array sub-schemas that are falsy or []', function (done) {
     var schema = createBlogSchema()
       , model = schema.makeBlank()
-      , testValues = [undefined, null, '', 0, []]
+      , testValues = [ undefined, null, '', 0, [] ]
       , subSchema = schema.schema.comments.type.arraySchema.schema
 
     subSchema.email.validators = {
-      all: [validity.required]
+      all: [ validity.required ]
     }
 
     async.forEach(testValues, function (value, next) {
@@ -382,13 +374,13 @@ describe('#validate()', function() {
     var schema = createContactSchema()
 
     schema.schema.name.validators = {
-      all: [function(key, errorProperty, object, callback) {
+      all: [ function(key, errorProperty, object, callback) {
         return callback(undefined, object[key] ? undefined : errorProperty + ' is required')
-      }]
+      } ]
     }
 
     schema.validate(schema.makeDefault({ name: '' }), function(error, errors) {
-      errors.should.eql({name:'Full Name is required'})
+      errors.should.eql({ name:'Full Name is required' })
       done()
     })
   })

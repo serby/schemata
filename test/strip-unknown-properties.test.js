@@ -1,5 +1,4 @@
-var schemata = require('../')
-  , helpers = require('./helpers')
+var helpers = require('./helpers')
   , createContactSchema = helpers.createContactSchema
   , createBlogSchema = helpers.createBlogSchema
   , createCommentSchema = helpers.createCommentSchema
@@ -27,13 +26,13 @@ describe('#stripUnknownProperties()', function() {
 
   it('strips out properties from sub-schemas', function() {
     var schema = createBlogSchema()
-    schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' }})
-      .should.eql({author: { name: 'Paul'} })
+    schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' } })
+      .should.eql({ author: { name: 'Paul' } })
   })
 
   it('keeps empty array sub-schemas empty', function() {
     var schema = createBlogSchema()
-    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: []})
+    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [] })
       .should.eql({ author: { name: 'Paul' },  comments: [] })
   })
 
@@ -42,8 +41,8 @@ describe('#stripUnknownProperties()', function() {
       , comment = createCommentSchema().makeBlank()
 
     comment.extra = 'Hello'
-    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [comment]})
-      .should.eql({ author: { name: 'Paul' },  comments: [{ email: null, comment: null, created: null } ] })
+    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [ comment ] })
+      .should.eql({ author: { name: 'Paul' },  comments: [ { email: null, comment: null, created: null } ] })
   })
 
   it('strips out properties for parent but ignores sub-schemas when "ignoreSubSchemas" is true', function() {
@@ -52,8 +51,9 @@ describe('#stripUnknownProperties()', function() {
 
     comment.comment = 'Do not strip out my comment'
     comment.extra = 'This will be striped as its not in the schema at all'
-    schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto', true)
-      .should.eql({ title: 'My Blog',  comments: [{ email: null, comment: 'Do not strip out my comment', created: null } ] })
+    schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto', true)
+      .should.eql({ title: 'My Blog',  comments:
+        [ { email: null, comment: 'Do not strip out my comment', created: null } ] })
   })
 
   it('strips out properties for parent and sub-schemas when "ignoreSubSchemas" is false', function() {
@@ -62,8 +62,8 @@ describe('#stripUnknownProperties()', function() {
 
     comment.comment = 'Do not strip out my comment'
     comment.extra = 'Hello'
-    schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [comment]}, 'auto')
-      .should.eql({ title: 'My Blog',  comments: [{ comment: 'Do not strip out my comment' } ] })
+    schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto')
+      .should.eql({ title: 'My Blog',  comments: [ { comment: 'Do not strip out my comment' } ] })
   })
 
 })
