@@ -1,6 +1,7 @@
 var schemata = require('../')
   , helpers = require('./helpers')
   , should = require('should')
+  , assert = require('assert')
   , createContactSchema = helpers.createContactSchema
   , createBlogSchema = helpers.createBlogSchema
   , castFixtures = require('./cast-fixtures')
@@ -103,6 +104,23 @@ describe('#cast()', function() {
           , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
           , comments: []
           })
+    obj.author.dateOfBirth.should.be.instanceOf(Date)
+  })
+
+  it('casts properties that have a subschema', function () {
+    var schema = createBlogSchema()
+      , initialObj =
+        { title: 'My Blog'
+        , author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() }
+        , comments: []
+        }
+
+    schema.schema.author.type = function (model) {
+      assert.deepEqual(model, initialObj.author)
+      return createContactSchema()
+    }
+
+    var obj = schema.cast(initialObj)
     obj.author.dateOfBirth.should.be.instanceOf(Date)
   })
 

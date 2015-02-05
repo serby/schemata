@@ -2,6 +2,7 @@ var helpers = require('./helpers')
   , createContactSchema = helpers.createContactSchema
   , createBlogSchema = helpers.createBlogSchema
   , createCommentSchema = helpers.createCommentSchema
+  , assert = require('assert')
 
 describe('#stripUnknownProperties()', function() {
 
@@ -27,6 +28,19 @@ describe('#stripUnknownProperties()', function() {
   it('strips out properties from sub-schemas', function() {
     var schema = createBlogSchema()
     schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' } })
+      .should.eql({ author: { name: 'Paul' } })
+  })
+
+  it('strips out properties from sub-schemas returned from a type function', function() {
+    var schema = createBlogSchema()
+      , obj = { author: { name: 'Paul', extra: 'Not here' } }
+
+    schema.schema.author.type = function (model) {
+      assert.deepEqual(model, obj)
+      return createContactSchema()
+    }
+
+    schema.stripUnknownProperties(obj)
       .should.eql({ author: { name: 'Paul' } })
   })
 

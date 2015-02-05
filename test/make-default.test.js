@@ -2,6 +2,7 @@ var schemata = require('../')
   , helpers = require('./helpers')
   , createContactSchema = helpers.createContactSchema
   , createBlogSchema = helpers.createBlogSchema
+  , assert = require('assert')
 
 describe('#makeDefault()', function() {
 
@@ -74,5 +75,30 @@ describe('#makeDefault()', function() {
     blogA.comments.push(1)
     blogA.comments.should.have.lengthOf(1)
     blogB.comments.should.have.lengthOf(0)
+  })
+
+  it('makes default on sub-schema objects if type is a function', function() {
+    var schema = createBlogSchema()
+      , obj =
+        { title: 'Mr. Blogger’s Post'
+        , author: { name: 'Mr. Blogger' }
+        }
+      , called = false
+
+    // This function gets called twice, once in makeBlank and once for makeDefault.
+    // We want to test the 2nd call
+    schema.schema.author.type = function (model) {
+      if (called === false) return createContactSchema()
+      called = true
+      assert.deepEqual(model, obj)
+      return createContactSchema()
+    }
+
+    schema.makeDefault(obj).should.eql(
+      { title: 'Mr. Blogger’s Post'
+      , body: null
+      , author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null }
+      , comments: []
+      })
   })
 })

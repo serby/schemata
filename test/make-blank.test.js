@@ -42,6 +42,19 @@ describe('#makeBlank()', function() {
     blog.author.should.have.property('name')
   })
 
+  it('creates blank sub-schema objects if type is a function', function() {
+    var schema = createBlogSchema()
+
+    schema.schema.author.type = function () {
+      return createContactSchema()
+    }
+
+    var blog = schema.makeBlank()
+
+    blog.should.have.property('author')
+    blog.author.should.have.property('name')
+  })
+
   it('creates blank array for sub-schema Array', function() {
     var schema = createBlogSchema()
       , blog = schema.makeBlank()
