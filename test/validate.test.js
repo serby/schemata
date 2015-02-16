@@ -20,6 +20,20 @@ function createBlogSchemaWithSubSchemaNotInitialised() {
     })
 }
 
+function createKidSchema() {
+  return schemata(
+    { name: { type: String }
+    , toy: { type: createToySchema() }
+    })
+}
+
+function createToySchema() {
+  return schemata(
+    { name: { type: String }
+    , label: { type: String, validators: { all: [ validity.required ] } }
+    })
+}
+
 function asyncValidator(key, name, object, callback) {
   process.nextTick(function () {
     return callback(null, undefined)
@@ -365,6 +379,21 @@ describe('#validate()', function() {
 
       schema.validate(model, function (error, errors) {
         errors.should.eql({})
+        next()
+      })
+    }, done)
+  })
+
+  it('does not try and validate sub-schemas that are falsy', function (done) {
+    var kidSchema = createKidSchema()
+      , kid = kidSchema.makeBlank()
+      , emptyValues = [ undefined, null, '', 0 ]
+
+   async.forEach(emptyValues, function (value, next) {
+      kid.toy = value
+
+      kidSchema.validate(kid, function (error, errors) {
+        errors.should.eql({}, 'Should not run validation when toy is ' + value)
         next()
       })
     }, done)
