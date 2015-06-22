@@ -378,20 +378,21 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       // In order to validate, type must be a schemata array and the property must be an array with length
       if (!isSchemataArray(property.type) || !Array.isArray(entityObject[key]) || !entityObject[key].length) return cb()
 
-      var index = 0
-      async.forEachSeries(entityObject[key], function (value, cb) {
+      async.times(entityObject[key].length, validateArrayItemSchema, function () {
+        return cb(errors[key] && errors[key].length > 1 ? errors : null)
+      })
+
+      function validateArrayItemSchema(i, cb) {
+        var value = entityObject[key][i]
+
         property.type.arraySchema.validate(value, set, tag, function (error, subSchemaArrayErrors) {
           if (Object.keys(subSchemaArrayErrors).length > 0) {
             if (!errors[key]) errors[key] = {}
-            errors[key][index] = subSchemaArrayErrors
+            errors[key][i] = subSchemaArrayErrors
           }
-          index += 1
           cb()
         })
-      }, function () {
-        cb(errors[key] && errors[key].length > 1 ? errors : null)
-      })
-
+      }
     }
 
   }

@@ -344,6 +344,21 @@ describe('#validate()', function() {
     })
   })
 
+  it('Does not throw a stack size error when validating a large array set', function (done) {
+    var schema = createBlogSchema()
+      , model = schema.makeBlank()
+
+    for (var i = 0; i < 2000; i++) {
+      model.comments.push({ email: 'test' + i + '@test.com', comment: 'comment' })
+    }
+
+    assert.doesNotThrow(function () {
+      schema.validate(model, function () {
+        done()
+      })
+    }, 'should not thrown an exception')
+  })
+
   it('should cause an error if a subSchema is passed un-invoked', function (done) {
     var schema = createBlogSchemaWithSubSchemaNotInitialised()
       , model = schema.makeBlank()
