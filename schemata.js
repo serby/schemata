@@ -373,21 +373,19 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
      */
     function validateArraySchema(cb) {
 
-      var complete = 0
-
       if (!validateSubschemas) return cb()
 
       // In order to validate, type must be a schemata array and the property must be an array with length
       if (!isSchemataArray(property.type) || !Array.isArray(entityObject[key]) || !entityObject[key].length) return cb()
 
-      function done() {
-        if (++complete === entityObject[key].length) {
-          return cb(errors[key] && errors[key].length > 1 ? errors : null)
-        }
-      }
+      async.times(entityObject[key].length, validateSubSchema, function () {
+        return cb(errors[key] && errors[key].length > 1 ? errors : null)
+      })
 
       function validateSubSchema(i, cb) {
-        property.type.arraySchema.validate(entityObject[key][i], set, tag, function (error, subSchemaArrayErrors) {
+        var value = entityObject[key][i]
+
+        property.type.arraySchema.validate(value, set, tag, function (error, subSchemaArrayErrors) {
           if (Object.keys(subSchemaArrayErrors).length > 0) {
             if (!errors[key]) errors[key] = {}
             errors[key][i] = subSchemaArrayErrors
@@ -395,11 +393,6 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
           cb()
         })
       }
-
-      for (var i = 0; i < entityObject[key].length; i++) {
-        validateSubSchema(i, done)
-      }
-
     }
 
   }
