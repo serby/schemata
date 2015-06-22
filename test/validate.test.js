@@ -404,7 +404,7 @@ describe('#validate()', function() {
       , kid = kidSchema.makeBlank()
       , emptyValues = [ undefined, null, '', 0 ]
 
-   async.forEach(emptyValues, function (value, next) {
+    async.forEach(emptyValues, function (value, next) {
       kid.toy = value
 
       kidSchema.validate(kid, function (error, errors) {
