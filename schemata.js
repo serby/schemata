@@ -378,11 +378,11 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       // In order to validate, type must be a schemata array and the property must be an array with length
       if (!isSchemataArray(property.type) || !Array.isArray(entityObject[key]) || !entityObject[key].length) return cb()
 
-      async.times(entityObject[key].length, validateSubSchema, function () {
+      async.times(entityObject[key].length, validateArrayItemSchema, function () {
         return cb(errors[key] && errors[key].length > 1 ? errors : null)
       })
 
-      function validateSubSchema(i, cb) {
+      function validateArrayItemSchema(i, cb) {
         var value = entityObject[key][i]
 
         property.type.arraySchema.validate(value, set, tag, function (error, subSchemaArrayErrors) {
