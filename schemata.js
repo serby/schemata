@@ -16,6 +16,7 @@ var hasTag = require('./lib/has-tag')
 
   , async = require('async')
   , stringUtils = require('piton-string-utils')
+  , sigmund = require('sigmund')
 
 function createSchemata(schema) {
   return new Schemata(schema)
@@ -308,6 +309,10 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
     callback(error === true ? undefined : error, errors)
   })
 
+  function hash() {
+    return sigmund(arguments, 10)
+  }
+
   /*
    * Run validation on a single property
    */
@@ -333,14 +338,27 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
 
       async.forEach(validators, function (validator, validateCallback) {
         if (errors[key]) return validateCallback()
-        validator(key, errorName, entityObject, function (error, valid) {
-          if (valid) {
-            errors[key] = valid
-            validateSubschemas = false
-          }
-          validateCallback(error)
-        })
 
+        // Check if parent is expected or not
+        if (validator.length === 5) {
+          var childHash = hash(entityObject)
+            , parent = this.parentObjects[childHash] || null
+          validator(key, errorName, entityObject, parent, function (error, valid) {
+            if (valid) {
+              errors[key] = valid
+              validateSubschemas = false
+            }
+            validateCallback(error)
+          })
+        } else {
+          validator(key, errorName, entityObject, function (error, valid) {
+            if (valid) {
+              errors[key] = valid
+              validateSubschemas = false
+            }
+            validateCallback(error)
+          })
+        }
       }, function(error) {
         cb(error)
       })
@@ -360,6 +378,13 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       if (!isSchemata(type)) return cb()
 
       if (!entityObject[key]) return cb()
+
+      this.parentObjects = this.parentObjects || {}
+
+      // Set parent
+      var childHash = hash(entityObject[key])
+        , parentHash = hash(entityObject)
+      this.parentObjects[childHash] = this.parentObjects[parentHash] || entityObject
 
       return type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
         if (Object.keys(subSchemaErrors).length > 0) errors[key] = subSchemaErrors
