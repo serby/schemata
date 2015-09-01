@@ -23,6 +23,7 @@
   "dependencies": {
     "async": "^0.2.10",
     "piton-string-utils": "~0.3",
+    "sigmund": "^1.0.1",
     "validity": "~0.0"
   },
   "devDependencies": {
