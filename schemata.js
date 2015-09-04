@@ -23,6 +23,7 @@ function createSchemata(schema) {
 
 function Schemata(schema) {
   this.schema = schema || {}
+  Schemata.prototype.validate.prototype.parent = null
 }
 
 /*
@@ -263,11 +264,41 @@ Schemata.prototype.cast = function (entityObject, tag) {
   return newEntity
 }
 
+function validateArgumentStrategies() {
+  function two(validateArgs) {
+    var properties = {}
+    properties.entityObject = validateArgs[0]
+    properties.set = 'all'
+    properties.tag = undefined
+    properties.callback = validateArgs[1]
+    return properties
+  }
+  function three(validateArgs) {
+    var properties = {}
+    properties.entityObject = validateArgs[0]
+    properties.set = validateArgs[1] || 'all'
+    properties.tag = undefined
+    properties.callback = validateArgs[2]
+    return properties
+  }
+  function four(validateArgs) {
+    var properties = {}
+    properties.entityObject = validateArgs[0]
+    properties.set = validateArgs[1] || 'all'
+    properties.tag = validateArgs[2]
+    properties.callback = validateArgs[3]
+    return properties
+  }
+  return {
+    '2': two
+  , '3': three
+  , '4': four
+  }
+}
 /*
  * Validates entity against the specified set, if set is not given the set 'all' will be assumed.
  */
 Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
-
   var errors = {}
     , processedSchema = {}
 
@@ -275,27 +306,16 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
     , set
     , tag
     , callback
+    , validateStrategy = validateArgumentStrategies()
+    , properties
 
-  switch (arguments.length) {
-  case 2:
-    entityObject = arguments[0]
-    set = 'all'
-    tag = undefined
-    callback = arguments[1]
-    break
-  case 3:
-    entityObject = arguments[0]
-    set = arguments[1] || 'all'
-    tag = undefined
-    callback = arguments[2]
-    break
-  case 4:
-    entityObject = arguments[0]
-    set = arguments[1] || 'all'
-    tag = arguments[2]
-    callback = arguments[3]
-    break
-  default:
+  if (validateStrategy.hasOwnProperty(arguments.length)) {
+    properties = validateStrategy[arguments.length](arguments)
+    entityObject = properties.entityObject
+    set = properties.set
+    tag = properties.tag
+    callback = properties.callback
+  } else {
     throw new Error('Validate called with a bad number of arguments')
   }
 
@@ -304,19 +324,18 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
     if (hasTag(this.schema, key, tag)) processedSchema[key] = this.schema[key]
   }.bind(this))
 
+  Schemata.prototype.validate.prototype.parent =
+    Schemata.prototype.validate.prototype.parent
+    || entityObject
+
   async.forEach(Object.keys(processedSchema), validateProperty, function (error) {
     callback(error === true ? undefined : error, errors)
   })
-
-  function hash() {
-    return sigmund(arguments, 10)
-  }
 
   /*
    * Run validation on a single property
    */
   function validateProperty(key, propertyCallback) {
-
     var property = processedSchema[key]
       , validateSubschemas = true
 
@@ -337,11 +356,8 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
 
       async.forEach(validators, function (validator, validateCallback) {
         if (errors[key]) return validateCallback()
-
-        // Check if parent is expected or not
         if (validator.length === 5) {
-          var childHash = hash(entityObject)
-            , parent = this.parentObjects[childHash] || null
+          var parent = Schemata.prototype.validate.prototype.parent
           validator(key, errorName, entityObject, parent, function (error, valid) {
             if (valid) {
               errors[key] = valid
@@ -377,13 +393,6 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       if (!isSchemata(type)) return cb()
 
       if (!entityObject[key]) return cb()
-
-      this.parentObjects = this.parentObjects || {}
-
-      // Set parent
-      var childHash = hash(entityObject[key])
-        , parentHash = hash(entityObject)
-      this.parentObjects[childHash] = this.parentObjects[parentHash] || entityObject
 
       return type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
         if (Object.keys(subSchemaErrors).length > 0) errors[key] = subSchemaErrors

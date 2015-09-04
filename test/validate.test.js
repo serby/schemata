@@ -437,7 +437,7 @@ describe('#validate()', function() {
     })
   })
 
-  it('should pass the parent to the callback if it takes five arguments and is a subschema', function (done) {
+  it('should pass the parent to callback if it has five arguments and is a subschema', function (done) {
     var schema = createBlogSchema()
       , subSchema = schema.schema.author.type.schema
       , schemaParent
@@ -455,7 +455,7 @@ describe('#validate()', function() {
     })
   })
 
-  it('should pass null as parent to the callback if it takes five arguments and is not a subschema', function (done) {
+  it('should pass the schema as parent to callback if it has five arguments and is not a subschema', function (done) {
     var schema = createBlogSchema()
       , schemaParent
 
@@ -466,8 +466,8 @@ describe('#validate()', function() {
       } ]
     }
 
-    schema.validate(schema.makeDefault({ title: '' }), function() {
-      assert.equal(schemaParent, null, 'Schema parent not null')
+    schema.validate(schema.makeDefault({ author: { name: 'test' } }), function() {
+      schemaParent.should.eql(fixtures.blog, 'Schema parent was not the schema itself')
       done()
     })
   })
