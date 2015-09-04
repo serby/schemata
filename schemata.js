@@ -16,7 +16,6 @@ var hasTag = require('./lib/has-tag')
 
   , async = require('async')
   , stringUtils = require('piton-string-utils')
-  , sigmund = require('sigmund')
 
 function createSchemata(schema) {
   return new Schemata(schema)
