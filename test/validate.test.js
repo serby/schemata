@@ -7,6 +7,7 @@ var schemata = require('../')
   , async = require('async')
   , assert = require('assert')
   , createCommentSchema = helpers.createCommentSchema
+  , fixtures = require('./validate-fixtures')
 
 function createBlogSchemaWithSubSchemaNotInitialised() {
   return schemata(
@@ -432,6 +433,41 @@ describe('#validate()', function() {
   it('should not call the callback multiple times when omitting optional args', function (done) {
     var schema = createBlogSchema()
     schema.validate(schema.makeDefault({ comments: [ {}, {} ] }), 'all', function () {
+      done()
+    })
+  })
+
+  it('should pass the parent to callback if it has five arguments and is a subschema', function (done) {
+    var schema = createBlogSchema()
+      , subSchema = schema.schema.author.type.schema
+      , schemaParent
+
+    subSchema.name.validators = {
+      all: [ function(key, errorProperty, object, parent, callback) {
+        schemaParent = parent
+        return callback(undefined, object[key] ? undefined : errorProperty + ' is required')
+      } ]
+    }
+
+    schema.validate(schema.makeDefault({ author: { name: 'test' } }), function() {
+      schemaParent.should.eql(fixtures.blog, 'Schema parent was not returned in the callback')
+      done()
+    })
+  })
+
+  it('should pass the schema as parent to callback if it has five arguments and is not a subschema', function (done) {
+    var schema = createBlogSchema()
+      , schemaParent
+
+    schema.schema.title.validators = {
+      all: [ function(key, errorProperty, object, parent, callback) {
+        schemaParent = parent
+        return callback(undefined, object[key] ? undefined : errorProperty + ' is required')
+      } ]
+    }
+
+    schema.validate(schema.makeDefault({ author: { name: 'test' } }), function() {
+      schemaParent.should.eql(fixtures.blog, 'Schema parent was not the schema itself')
       done()
     })
   })
