@@ -124,6 +124,28 @@ describe('#cast()', function() {
     obj.author.dateOfBirth.should.be.instanceOf(Date)
   })
 
+  it('casts properties that have null subschemas', function () {
+    var schema = createBlogSchema()
+      , initialObj =
+        { title: 'My Blog'
+        , author: null
+        , comments: []
+        }
+
+    schema.schema.author.type = function (model) {
+      assert.deepEqual(model, initialObj.author)
+      return createContactSchema()
+    }
+
+    var obj = schema.cast(initialObj)
+    assert.deepEqual(obj.author
+    , { name: null
+      , age: 0
+      , active: true
+      , phoneNumber: null
+      , dateOfBirth: null
+      })
+  })
   it('casts properties that are an array of subschemas', function () {
     var schema = createBlogSchema()
       , obj = schema.cast(

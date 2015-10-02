@@ -201,6 +201,7 @@ Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreT
  * For booleans and integers; undefined, '', and null will all be cast to null
  * For array they will be converted to []
  * For object they will be converted to {}
+ * For sub-schema object they will be converted to the sub-schema default
  *
  * Throws error if type is undefined.
  *
@@ -213,7 +214,9 @@ Schemata.prototype.castProperty = function (type, value) {
   // a sub-schema, or an array of sub-schemas
 
   var subSchema = getType(type, value)
-  if (isSchemata(subSchema)) return subSchema.cast(value)
+  if (isSchemata(subSchema)) {
+    return value !== null ? subSchema.cast(value) : subSchema.makeDefault()
+  }
 
   if (isSchemataArray(type)) {
     if (!value) return null
@@ -227,7 +230,7 @@ Schemata.prototype.castProperty = function (type, value) {
   // cast the value based on which constructor is found
 
   // JSHint doesn't like switch statements!
-  /* jshint maxcomplexity: 12 */
+  /* jshint maxcomplexity: 13 */
   switch (type) {
   case Boolean:
     return castBoolean(value)
