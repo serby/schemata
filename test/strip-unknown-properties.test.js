@@ -31,6 +31,12 @@ describe('#stripUnknownProperties()', function() {
       .should.eql({ author: { name: 'Paul' } })
   })
 
+  it('does not attempt to strip properties from null sub-schema objects', function() {
+    var schema = createBlogSchema()
+    schema.stripUnknownProperties({ author: null })
+      .should.eql({ author: null })
+  })
+
   it('strips out properties from sub-schemas returned from a type function', function() {
     var schema = createBlogSchema()
       , obj = { author: { name: 'Paul', extra: 'Not here' } }
