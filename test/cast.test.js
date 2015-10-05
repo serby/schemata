@@ -138,14 +138,9 @@ describe('#cast()', function() {
     }
 
     var obj = schema.cast(initialObj)
-    assert.deepEqual(obj.author
-    , { name: null
-      , age: 0
-      , active: true
-      , phoneNumber: null
-      , dateOfBirth: null
-      })
+    assert.strictEqual(obj.author, null)
   })
+
   it('casts properties that are an array of subschemas', function () {
     var schema = createBlogSchema()
       , obj = schema.cast(
