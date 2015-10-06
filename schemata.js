@@ -138,7 +138,7 @@ Schemata.prototype.makeDefault = function (existingEntity) {
  */
 Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreTagForSubSchemas) {
 
-  /* jshint maxcomplexity: 9 */
+  /* jshint maxcomplexity: 10 */
 
   var newEntity = {}
 
@@ -152,6 +152,12 @@ Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreT
     if (typeof property === 'undefined' || !hasTag(this.schema, key, tag)) return
 
     var type = getType(property.type, entityObject)
+
+    // If the type is a schemata instance and is null, leave it alone
+    if (isSchemata(type) && entityObject[key] === null) {
+      newEntity[key] = null
+      return
+    }
 
     // If the type is a schemata instance use its stripUnknownProperties() function
     if (isSchemata(type)) {
@@ -207,7 +213,9 @@ Schemata.prototype.castProperty = function (type, value) {
   // a sub-schema, or an array of sub-schemas
 
   var subSchema = getType(type, value)
-  if (isSchemata(subSchema)) return subSchema.cast(value)
+  if (isSchemata(subSchema)) {
+    return value !== null ? subSchema.cast(value) : null
+  }
 
   if (isSchemataArray(type)) {
     if (!value) return null
@@ -221,7 +229,7 @@ Schemata.prototype.castProperty = function (type, value) {
   // cast the value based on which constructor is found
 
   // JSHint doesn't like switch statements!
-  /* jshint maxcomplexity: 12 */
+  /* jshint maxcomplexity: 13 */
   switch (type) {
   case Boolean:
     return castBoolean(value)
