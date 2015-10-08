@@ -472,4 +472,28 @@ describe('#validate()', function() {
     })
   })
 
+  it('should not leak parents across validates', function (done) {
+    var schema = createBlogSchema()
+      , schemaParents = []
+      , expectedParents = fixtures.expectedParents
+      , expectedParent
+      , observedParent
+
+    schema.schema.title.validators = {
+      all: [ function(key, errorProperty, object, parent, callback) {
+        schemaParents.push(parent)
+        return callback(undefined, object[key] ? undefined : errorProperty + ' is required')
+      } ]
+    }
+
+    async.eachSeries(expectedParents, function(model, next) {
+      schema.validate(schema.makeDefault(model), function() {
+        expectedParent = expectedParents[schemaParents.length - 1]
+        observedParent = schemaParents[schemaParents.length - 1]
+        assert.deepEqual(expectedParent, observedParent, 'Wrong parent schema returned')
+        next()
+      })
+    }, done)
+  })
+
 })
