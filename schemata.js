@@ -23,7 +23,6 @@ function createSchemata(schema) {
 
 function Schemata(schema) {
   this.schema = schema || {}
-  Schemata.prototype.validate.prototype.parent = null
 }
 
 /*
@@ -303,14 +302,13 @@ function validateArgumentStrategies() {
   , '4': four
   }
 }
-/*
- * Validates entity against the specified set, if set is not given the set 'all' will be assumed.
- */
-Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
-  var errors = {}
-    , processedSchema = {}
 
-    , entityObject
+/*
+ * Get arguments for validate and sets parent for this validation
+ * Then begins recursive validation, if set is not given the set 'all' will be assumed.
+ */
+Schemata.prototype.validate = function(/*entityObject, set, tag, callback*/) {
+  var entityObject
     , set
     , tag
     , callback
@@ -327,14 +325,20 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
     throw new Error('Validate called with a bad number of arguments')
   }
 
+  this.validateRecursive(entityObject, entityObject, set, tag, callback)
+}
+
+/*
+ * Recursively validates entity against the specified set, if set is not given the set 'all' will be assumed.
+ */
+Schemata.prototype.validateRecursive = function (parent, entityObject, set, tag, callback) {
+  var errors = {}
+    , processedSchema = {}
+
   // Only validate the properties with the given tag
   Object.keys(this.schema).forEach(function(key) {
     if (hasTag(this.schema, key, tag)) processedSchema[key] = this.schema[key]
   }.bind(this))
-
-  Schemata.prototype.validate.prototype.parent =
-    Schemata.prototype.validate.prototype.parent
-    || entityObject
 
   async.forEach(Object.keys(processedSchema), validateProperty, function (error) {
     callback(error === true ? undefined : error, errors)
@@ -365,7 +369,6 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       async.forEach(validators, function (validator, validateCallback) {
         if (errors[key]) return validateCallback()
         if (validator.length === 5) {
-          var parent = Schemata.prototype.validate.prototype.parent
           validator(key, errorName, entityObject, parent, function (error, valid) {
             if (valid) {
               errors[key] = valid
@@ -402,7 +405,7 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
 
       if (!entityObject[key]) return cb()
 
-      return type.validate(entityObject[key], set, tag, function (error, subSchemaErrors) {
+      return type.validateRecursive(parent, entityObject[key], set, tag, function (error, subSchemaErrors) {
         if (Object.keys(subSchemaErrors).length > 0) errors[key] = subSchemaErrors
         cb(error)
       })
@@ -426,7 +429,7 @@ Schemata.prototype.validate = function (/*entityObject, set, tag, callback*/) {
       function validateArrayItemSchema(i, cb) {
         var value = entityObject[key][i]
 
-        property.type.arraySchema.validate(value, set, tag, function (error, subSchemaArrayErrors) {
+        property.type.arraySchema.validateRecursive(parent, value, set, tag, function (error, subSchemaArrayErrors) {
           if (Object.keys(subSchemaArrayErrors).length > 0) {
             if (!errors[key]) errors[key] = {}
             errors[key][i] = subSchemaArrayErrors
