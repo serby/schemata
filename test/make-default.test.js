@@ -49,7 +49,17 @@ describe('#makeDefault()', function() {
     schema.makeDefault().should.eql(
       { title: null
       , body: null
-      , author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null }
+      , author: null
+      , comments: []
+      })
+  })
+
+  it('creates defaults for sub-schema', function() {
+    var schema = createBlogSchema()
+    schema.makeDefault({ author: null }).should.eql(
+      { title: null
+      , body: null
+      , author: null
       , comments: []
       })
   })
