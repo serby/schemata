@@ -54,7 +54,7 @@ describe('#makeDefault()', function() {
       })
   })
 
-  it('creates defaults for sub-schema', function() {
+  it('should not create default values on subschemas when value is null', function() {
     var schema = createBlogSchema()
     schema.makeDefault({ author: null }).should.eql(
       { title: null
