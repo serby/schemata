@@ -95,21 +95,24 @@ Schemata.prototype.makeDefault = function (existingEntity) {
       , existingValue = existingEntity[key]
       , type = getType(property.type, existingEntity)
 
-    // If the property is a schemata instance use its makeDefault() function
-    if (isSchemata(type)) {
-      newEntity[key] = type.makeDefault(existingValue)
-      return
-    }
-
     // If an existingEntity is passed then use its value
     // If it doesn't have that property then the default will be used.
+    // If an existingEntity is a schemata instane it's own makeDefault() will
+    // also be called so that partial sub-objects can be used.
     if ((existingEntity !== undefined) && (existingEntity[key] !== undefined)) {
-      newEntity[key] = existingEntity[key]
+      newEntity[key] = isSchemata(type)
+        ? type.makeDefault(existingValue)
+        : existingEntity[key]
       return
     }
 
     switch (typeof property.defaultValue) {
     case 'undefined':
+      // If the property is a schemata instance use its makeDefault() function
+      if (isSchemata(type)) {
+        newEntity[key] = type.makeDefault(existingValue)
+        return
+      }
       // In the absense of a defaultValue property the makeBlank() value is used
       return
     case 'function':
