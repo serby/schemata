@@ -67,6 +67,33 @@ describe('#makeDefault()', function() {
       })
   })
 
+  it('allows sub-schemas properties to set a default value', function() {
+    var schema = createBlogSchema()
+    schema.schema.author.defaultValue = function () {
+      return this.type.makeDefault(
+        { name: 'Mr. Mista'
+        , active: false
+        })
+    }
+    schema.makeDefault().should.eql(
+      { title: null
+      , body: null
+      , author: { name: 'Mr. Mista', age: 0, active: false, phoneNumber: null, dateOfBirth: null }
+      , comments: []
+      })
+  })
+
+  it('allows does not cast sub-schema property default values', function() {
+    var schema = createBlogSchema()
+    schema.schema.author.defaultValue = null
+    schema.makeDefault().should.eql(
+      { title: null
+      , body: null
+      , author: null
+      , comments: []
+      })
+  })
+
   it('create new instances for Array type', function() {
     var schema = createBlogSchema()
       , blogA = schema.makeDefault()
