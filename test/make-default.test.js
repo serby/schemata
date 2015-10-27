@@ -49,7 +49,27 @@ describe('#makeDefault()', function() {
     schema.makeDefault().should.eql(
       { title: null
       , body: null
-      , author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null }
+      , author: null
+      , comments: []
+      })
+  })
+
+  it('should not create default values on subschemas when value is null', function() {
+    var schema = createBlogSchema()
+    schema.makeDefault({ author: null }).should.eql(
+      { title: null
+      , body: null
+      , author: null
+      , comments: []
+      })
+  })
+
+  it('should not create default values on subschemas when value is undefined', function() {
+    var schema = createBlogSchema()
+    schema.makeDefault({ author: undefined }).should.eql(
+      { title: null
+      , body: null
+      , author: null
       , comments: []
       })
   })

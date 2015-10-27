@@ -85,6 +85,8 @@ Schemata.prototype.makeBlank = function () {
  */
 Schemata.prototype.makeDefault = function (existingEntity) {
 
+  /* jshint maxcomplexity: 7 */
+
   var newEntity = this.makeBlank()
 
   if (!existingEntity) existingEntity = {}
@@ -94,6 +96,12 @@ Schemata.prototype.makeDefault = function (existingEntity) {
     var property = this.schema[key]
       , existingValue = existingEntity[key]
       , type = getType(property.type, existingEntity)
+
+    // If the property is a schemata instance and has no existing value, set value to null
+    if (isSchemata(type) && (existingValue === null || existingValue === undefined)) {
+      newEntity[key] = null
+      return
+    }
 
     // If the property is a schemata instance use its makeDefault() function
     if (isSchemata(type)) {
