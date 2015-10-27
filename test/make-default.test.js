@@ -64,6 +64,16 @@ describe('#makeDefault()', function() {
       })
   })
 
+  it('should not create default values on subschemas when value is undefined', function() {
+    var schema = createBlogSchema()
+    schema.makeDefault({ author: undefined }).should.eql(
+      { title: null
+      , body: null
+      , author: null
+      , comments: []
+      })
+  })
+
   it('extends given object correctly for sub-schemas', function() {
     var schema = createBlogSchema()
     schema.makeDefault(
