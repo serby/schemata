@@ -28,7 +28,7 @@ function Schemata(schema) {
     if (!schema[k].defaultValue) return
     if (typeof schema[k].defaultValue === 'function') return
     if (isPrimitive(schema[k].defaultValue)) return
-    throw new Error('Schema property "' + k + '" must be either a primitive value or a function')
+    throw new Error('Schema property "' + k + '"’s defaultValue must be either a primitive value or a function')
   }.bind(this))
 }
 
