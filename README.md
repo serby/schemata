@@ -10,6 +10,15 @@ but unlike mongoose schemata has nothing to do with data persistence. This
 lightweight decoupled approach gives the ultimate flexibility and freedom to use
 the module with in your application whether you are storing your objects or not.
 
+## Changelog
+
+### v3.0.0
+
+This version prevents you from using arrays and objects for `defaultValue`. Now
+only primitives and functions are allowed. If you are not doing this in your
+project then you can safely upgrade from v2. See
+https://github.com/serby/schemata/pull/34 for more details.
+
 ## Installation
 
     npm install schemata
