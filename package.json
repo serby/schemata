@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "async": "^0.2.10",
+    "is-primitive": "^2.0.0",
     "piton-string-utils": "~0.3",
     "validity": "~0.0"
   },

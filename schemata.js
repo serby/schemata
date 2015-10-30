@@ -16,6 +16,7 @@ var hasTag = require('./lib/has-tag')
 
   , async = require('async')
   , stringUtils = require('piton-string-utils')
+  , isPrimitive = require('is-primitive')
 
 function createSchemata(schema) {
   return new Schemata(schema)
@@ -23,6 +24,12 @@ function createSchemata(schema) {
 
 function Schemata(schema) {
   this.schema = schema || {}
+  Object.keys(this.schema).forEach(function (k) {
+    if (!schema[k].defaultValue) return
+    if (typeof schema[k].defaultValue === 'function') return
+    if (isPrimitive(schema[k].defaultValue)) return
+    throw new Error('Schema property "' + k + '" must be either a primitive value or a function')
+  }.bind(this))
 }
 
 /*
