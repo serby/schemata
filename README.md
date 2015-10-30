@@ -211,4 +211,4 @@ console.log(address.propertyName('addressLine3'));
 [Dom Harrington](https://github.com/domharrington/)
 
 ## Licence
-Licenced under the [New BSD License](http://opensource.org/licenses/bsd-license.php)
+ISC
