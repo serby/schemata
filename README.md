@@ -28,7 +28,7 @@ https://github.com/serby/schemata/pull/34 for more details.
 ### Creating a basic schema
 
 ```js
-var schemata = require('schemata');
+var schemata = require('schemata')
 
 var contactSchema = schemata({
   name: {
@@ -44,7 +44,7 @@ var contactSchema = schemata({
   },
   phoneNumber: { // If no type is given String will be assumed
   }
-});
+})
 ```
 
 #### Schema Properties
@@ -58,7 +58,7 @@ var contactSchema = schemata({
 ### Creating a new object
 
 ```js
-var blank = contactSchema.makeBlank();
+var blank = contactSchema.makeBlank()
 ```
     {
       name: null,
@@ -102,7 +102,7 @@ Validation is easy in schemata, just call **validate()** on your schema passing 
 ```js
 contactSchema.validate(objectToValidate, function(errors){
   // errors
-});
+})
 ```
 
 Validators are assigned to a field of the schema by adding them as an array to the **validators** property of the object as follows (this is an extension of the example at the top):
@@ -110,7 +110,7 @@ Validators are assigned to a field of the schema by adding them as an array to t
 ```js
 name: {
   name: 'Full Name',
-  validators: [validator1, validator2]
+  validators: { all: [validator1, validator2] }
 }
 ```
 
@@ -125,13 +125,13 @@ The callback must be called with a falsy value (such as undefined or null) if th
 A full validator example:
 
 ```js
-var required = function(propertyName, errorPropertyName, object, callback) {
-  return callback(value ? undefined : errorPropertyName + ' is required');
-};
+var required = function (propertyName, errorPropertyName, object, callback) {
+  return callback(object[propertyName] ? undefined : errorPropertyName + ' is required')
+}
 
 name: {
   name: 'Full Name',
-  validators: [required]
+  validators: { all: [ required ] }
 }
 ```
 
