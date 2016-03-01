@@ -7,6 +7,7 @@ var schemata = require('../')
   , castFixtures = require('./cast-fixtures')
   , assertions = castFixtures.assertions
   , typeMap = castFixtures.typeMap
+  , validity = require('validity')
 
 function createArraySchema() {
   var schema = schemata({
@@ -116,7 +117,7 @@ describe('#cast()', function() {
         }
 
     schema.schema.author.type = function (model) {
-      assert.deepEqual(model, initialObj.author)
+      assert.deepEqual(model, initialObj)
       return createContactSchema()
     }
 
@@ -133,7 +134,7 @@ describe('#cast()', function() {
         }
 
     schema.schema.author.type = function (model) {
-      assert.deepEqual(model, initialObj.author)
+      assert.deepEqual(model, initialObj)
       return createContactSchema()
     }
 
@@ -150,6 +151,34 @@ describe('#cast()', function() {
           })
 
     obj.comments[0].created.should.be.instanceOf(Date)
+
+  })
+
+  it('casts properties that have a conditional/function type', function () {
+    var vehicleSchema = schemata(
+          { type: { type: String }
+          , tyreWear:
+            { type: function (obj) {
+                // This function takes any configuration of tyres and
+                // just ensures that each of the values is a number
+                var schema = {}
+                if (!obj || !obj.tyreWear) return schemata(schema)
+                Object.keys(obj.tyreWear).forEach(function (k) {
+                  schema[k] = { type: Number, validators: { all: [ validity.required ] } }
+                })
+                return schemata(schema)
+              }
+            }
+          })
+
+      , bike = vehicleSchema.cast({ type: 'bike', tyreWear: { front: '0', back: '2' } })
+      , car = vehicleSchema.cast(
+        { type: 'car'
+        , tyreWear: { nearsideFront: '0', offsideFront: '2', nearsideBack: '3', offsideBack: '5' }
+        })
+
+    assert.deepStrictEqual(bike.tyreWear, { front: 0, back: 2 })
+    assert.deepStrictEqual(car.tyreWear, { nearsideFront: 0, offsideFront: 2, nearsideBack: 3, offsideBack: 5 })
 
   })
 

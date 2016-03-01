@@ -215,14 +215,14 @@ Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreT
  * Throws error if type is undefined.
  *
  */
-Schemata.prototype.castProperty = function (type, value) {
+Schemata.prototype.castProperty = function (type, value, key, entityObject) {
 
   if (type === undefined) throw new Error('Missing type')
 
   // First check whether the type of this property is
   // a sub-schema, or an array of sub-schemas
 
-  var subSchema = getType(type, value)
+  var subSchema = getType(type, entityObject)
   if (isSchemata(subSchema)) {
     return value !== null ? subSchema.cast(value) : null
   }
@@ -274,7 +274,7 @@ Schemata.prototype.cast = function (entityObject, tag) {
 
     // Only cast properties in the schema and tagged, if tag is provided
     if (this.schema[key] !== undefined && this.schema[key].type && hasTag(this.schema, key, tag)) {
-      newEntity[key] = this.castProperty(this.schema[key].type, entityObject[key])
+      newEntity[key] = this.castProperty(this.schema[key].type, entityObject[key], key, entityObject)
     }
 
   }.bind(this))
