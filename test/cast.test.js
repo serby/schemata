@@ -177,8 +177,13 @@ describe('#cast()', function() {
         , tyreWear: { nearsideFront: '0', offsideFront: '2', nearsideBack: '3', offsideBack: '5' }
         })
 
-    assert.deepStrictEqual(bike.tyreWear, { front: 0, back: 2 })
-    assert.deepStrictEqual(car.tyreWear, { nearsideFront: 0, offsideFront: 2, nearsideBack: 3, offsideBack: 5 })
+    assert.strictEqual(bike.tyreWear.front, 0)
+    assert.strictEqual(bike.tyreWear.back, 2)
+
+    should.strictEqual(car.tyreWear.nearsideFront, 0)
+    should.strictEqual(car.tyreWear.offsideFront, 2)
+    should.strictEqual(car.tyreWear.nearsideBack, 3)
+    should.strictEqual(car.tyreWear.offsideBack, 5)
 
   })
 
