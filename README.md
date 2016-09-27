@@ -14,10 +14,13 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v3.2.0
+
+* Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.
+
 ### v3.1.0
 
 * Fixed a bug where `stripUnknownProperties()` was not stripping out properties of type array that were null.
-* Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.
 
 ### v3.0.0
 
