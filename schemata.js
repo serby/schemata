@@ -351,7 +351,7 @@ Schemata.prototype.validateRecursive = function (parent, entityObject, set, tag,
     if (hasTag(this.schema, key, tag)) processedSchema[key] = this.schema[key]
   }.bind(this))
 
-  async.forEach(Object.keys(processedSchema), validateProperty, function (error) {
+  async.forEach(Object.keys(processedSchema), async.setImmediate.bind(async, validateProperty), function (error) {
     callback(error === true ? undefined : error, errors)
   })
 
