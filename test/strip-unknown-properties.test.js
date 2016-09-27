@@ -20,6 +20,19 @@ describe('#stripUnknownProperties()', function() {
     })
   })
 
+  it('does not attempt to strip properties of null ', function() {
+    var contactSchema = createContactSchema()
+      , blogschema = createBlogSchema()
+
+    contactSchema.stripUnknownProperties({ age: null, active: null, extra: null })
+      .should.eql({ age: null,  active: null })
+
+    blogschema.stripUnknownProperties({ author: null, comments: null })
+      .should.eql({ author: null,  comments: null })
+
+  })
+
+
   it('strips out properties without the given tag and returns empty object if tag is not found', function() {
     var schema = createContactSchema()
     schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'BADTAG').should.eql({})

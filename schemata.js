@@ -163,8 +163,8 @@ Schemata.prototype.stripUnknownProperties = function (entityObject, tag, ignoreT
 
     var type = getType(property.type, entityObject)
 
-    // If the type is a schemata instance and is null, leave it alone
-    if (isSchemata(type) && entityObject[key] === null) {
+    // If the property is null, leave it alone
+    if (entityObject[key] === null) {
       newEntity[key] = null
       return
     }
