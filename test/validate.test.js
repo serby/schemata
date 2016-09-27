@@ -31,7 +31,7 @@ function createKidSchema() {
 function createToySchema() {
   return schemata(
     { name: { type: String }
-    , label: { type: String, validators: { all: [ validity.required ] } }
+    , label: { type: String, validators: [ validity.required ] }
     })
 }
 

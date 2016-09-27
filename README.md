@@ -14,6 +14,11 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v3.1.0
+
+* Fixed a bug where `stripUnknownProperties()` was not stripping out properties of type array that were null.
+* Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.
+
 ### v3.0.0
 
 This version prevents you from using arrays and objects for `defaultValue`. Now
@@ -55,7 +60,7 @@ var contactSchema = schemata({
 * **type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
 * **defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
 * **tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
-* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways.
+* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways. Since 3.1, if you only want one set of validators you can set `.validators = [ validatorA, validatorB ]` as a shorthand.
 
 ### Creating a new object
 
@@ -72,7 +77,7 @@ var blank = contactSchema.makeBlank()
 ### Creating a new object with the default values
 
 ```js
-var default = contactSchema.makeDefault();
+var default = contactSchema.makeDefault()
 ```
     {
       name: null,
@@ -91,7 +96,7 @@ schemata scheme.
 var stripped = contactSchema.stripUnknownProperties({
   name: 'Dom',
   extra: 'This should not be here'
-});
+})
 ```
     {
       name: 'Dom'
@@ -143,10 +148,10 @@ For a comprehensive set of validators including: email, integer, string length, 
 
 ### Cast an object to the types defined in the schema
 
-Type casting is done in schemata using the **cast()** and **castProperty()** functions. **cast()** is used for when you want to cast multiple properties against a schama, **castProperty()** is used if you want to cast one property and explicitly provide the type.
+Type casting is done in schemata using the **cast()** and **castProperty()** functions. **cast()** is used for when you want to cast multiple properties against a schema, **castProperty()** is used if you want to cast one property and explicitly provide the type.
 
 ```js
-var schemata = require('schemata');
+var schemata = require('schemata')
 
 var person = schemata({
   name: {
@@ -167,7 +172,7 @@ var person = schemata({
   extraInfo: {
     type: Object
   }
-});
+})
 
 var objectToCast = {
   name: 123456,
@@ -176,9 +181,9 @@ var objectToCast = {
   birthday: '13 February 1991',
   friends: '',
   extraInfo: undefined
-};
+}
 
-var casted = person.cast(objectToCast);
+var casted = person.cast(objectToCast)
 // casted = {
 //   name: '123456',
 //   age: 83,
@@ -196,7 +201,7 @@ If you want to output the name of a schema property in a human-readable format t
 Consider the following example:
 
 ```js
-var schemata = require('schemata');
+var schemata = require('schemata')
 
 var address = schemata({
   addressLine1: {},
@@ -207,12 +212,12 @@ var address = schemata({
   addressLine4: {
     name: 'Region'
   }
-});
+})
 
-console.log(address.propertyName('addressLine1'));
+console.log(address.propertyName('addressLine1'))
 // Returns 'Address Line 1' because there is no name set
 
-console.log(address.propertyName('addressLine3'));
+console.log(address.propertyName('addressLine3'))
 // Returns 'Town' because there is a name set
 ```
 

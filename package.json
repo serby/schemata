@@ -1,6 +1,6 @@
 {
   "name": "schemata",
-  "description": "Define, create, and validate your business objects, based on specified schema.",
+  "description": "Define, create, and validate your business objects, based on well defined schema.",
   "version": "3.1.0",
   "author": "Paul Serby <paul@serby.net>",
   "publishConfig": {
@@ -23,15 +23,15 @@
   "dependencies": {
     "async": "^2.0.1",
     "is-primitive": "^2.0.0",
-    "piton-string-utils": "^0.3.0",
-    "validity": "^0.0.3"
+    "piton-string-utils": "^0.3.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
     "jscs": "^3.0.7",
     "jshint": "^2.9.3",
     "mocha": "^3.1.0",
-    "should": "^11.1.0"
+    "should": "^11.1.0",
+    "validity": "^0.0.3"
   },
   "keywords": [
     "entity",
@@ -41,8 +41,8 @@
   "repository": "git://github.com/serby/schemata.git",
   "main": "schemata",
   "scripts": {
-    "lint": "jshint . && ./node_modules/.bin/jscs . -c ./.jscsrc",
-    "pretest": "npm run-script lint",
+    "lint": "jshint . && jscs . -c ./.jscsrc",
+    "pretest": "npm run lint",
     "test": "istanbul cover ./node_modules/.bin/_mocha -- -R spec -r should",
     "posttest": "istanbul check-coverage --statements 95 --branches 85 --functions 100 --lines 95 && rm -rf coverage",
     "prepublish": "npm test && npm prune"

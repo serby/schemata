@@ -371,11 +371,13 @@ Schemata.prototype.validateRecursive = function (parent, entityObject, set, tag,
      */
     function validateSimpleProperty(cb) {
 
-      // This property has no validators, or none specified for the given set
-      if (property.validators === undefined || !Array.isArray(property.validators[set])) return cb()
-
-      var validators = property.validators[set]
+      // This allows for validator to simply be an array. New in v3.1!
+      var validators = Array.isArray(property.validators) &&
+          set === 'all' ? property.validators : property.validators && property.validators[set]
         , errorName = property.name === undefined ? stringUtils.decamelcase(key) : property.name
+
+      // This property has no validators, or none specified for the given set
+      if (validators === undefined || !Array.isArray(validators)) return cb()
 
       async.forEach(validators, function (validator, validateCallback) {
         if (errors[key]) return validateCallback()
