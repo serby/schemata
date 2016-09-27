@@ -4,6 +4,8 @@
 
 [![build status](https://api.travis-ci.org/serby/schemata.svg?branch=master)](http://travis-ci.org/serby/schemata)
 
+[![NSP Status](https://nodesecurity.io/orgs/clock-limited/projects/0ba2886a-7c59-44f8-a893-7f272ba6ef63/badge)](https://nodesecurity.io/orgs/clock-limited/projects/0ba2886a-7c59-44f8-a893-7f272ba6ef63)
+
 schemata allows you to define schemas to ensure your objects are well formed.
 This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/)
 but unlike mongoose schemata has nothing to do with data persistence. This
