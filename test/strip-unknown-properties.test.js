@@ -32,7 +32,6 @@ describe('#stripUnknownProperties()', function() {
 
   })
 
-
   it('strips out properties without the given tag and returns empty object if tag is not found', function() {
     var schema = createContactSchema()
     schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'BADTAG').should.eql({})

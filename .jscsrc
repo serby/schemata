@@ -20,7 +20,7 @@
   "requireMultipleVarDecl": true,
   "disallowEmptyBlocks": true,
   "disallowSpaceAfterObjectKeys": true,
-  "disallowCommaBeforeLineBreak": true,
+  "disallowCommaBeforeLineBreak": false,
   "disallowTrailingWhitespace": true,
   "requireCapitalizedConstructors": true,
   "requireSpacesInsideObjectBrackets": "all",
