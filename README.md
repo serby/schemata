@@ -110,7 +110,7 @@ var stripped = contactSchema.stripUnknownProperties({
 Validation is easy in schemata, just call **validate()** on your schema passing in the object to validate:
 
 ```js
-contactSchema.validate(objectToValidate, function(errors){
+contactSchema.validate(objectToValidate, function(error, errors) {
   // errors
 })
 ```
