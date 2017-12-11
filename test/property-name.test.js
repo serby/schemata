@@ -1,25 +1,23 @@
-var helpers = require('./helpers')
-  , createContactSchema = helpers.createContactSchema
+const helpers = require('./helpers')
+const createContactSchema = helpers.createContactSchema
 
-describe('#propertyName()', function() {
-
-  it('returns name when available', function() {
-    var schema = createContactSchema()
+describe('#propertyName()', () => {
+  it('returns name when available', () => {
+    const schema = createContactSchema()
     schema.propertyName('name').should.equal('Full Name')
   })
 
-  it('returns converted name', function() {
-    var schema = createContactSchema()
+  it('returns converted name', () => {
+    const schema = createContactSchema()
     schema.propertyName('age').should.eql('Age')
   })
 
-  it('throws error on unspecified property', function() {
-    var schema = createContactSchema()
-      , propertyName = 'Wobble';
+  it('throws error on unspecified property', () => {
+    const schema = createContactSchema()
+    const propertyName = 'Wobble';
 
-    (function() {
+    ((() => {
       schema.propertyName(propertyName)
-    }).should.throwError('No property \'' + propertyName + '\' in schema')
+    })).should.throwError(`No property '${propertyName}' in schema`)
   })
-
 })

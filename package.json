@@ -3,9 +3,6 @@
   "description": "Define, create, and validate your business objects, based on well defined schema.",
   "version": "3.2.0",
   "author": "Paul Serby <paul@serby.net>",
-  "publishConfig": {
-    "registry": "http://registry.npmjs.org/"
-  },
   "contributors": [
     {
       "name": "Paul Serby",
@@ -26,7 +23,14 @@
     "piton-string-utils": "^0.3.0"
   },
   "devDependencies": {
+    "eslint": "^4.13.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "istanbul": "^0.4.5",
+    "jest": "^21.2.1",
     "jscs": "^3.0.7",
     "jshint": "^2.9.3",
     "mocha": "^3.1.0",

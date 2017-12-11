@@ -1,120 +1,121 @@
-var schemata = require('../')
-  , helpers = require('./helpers')
-  , createContactSchema = helpers.createContactSchema
-  , createBlogSchema = helpers.createBlogSchema
-  , assert = require('assert')
+const schemata = require('../')
+const helpers = require('./helpers')
+const createContactSchema = helpers.createContactSchema
+const createBlogSchema = helpers.createBlogSchema
+const assert = require('assert')
 
-describe('#makeDefault()', function() {
-
-  it('without a customer schema creates a empty object', function() {
-    var schema = schemata()
+describe('#makeDefault()', () => {
+  it('without a customer schema creates a empty object', () => {
+    const schema = schemata()
     schema.makeDefault().should.eql({})
   })
 
-  it('returns correct object', function() {
-    var schema = createContactSchema()
+  it('returns correct object', () => {
+    const schema = createContactSchema()
     schema.makeDefault().should.eql(
-      { name: null
-      , age: 0
-      , active: true
-      , phoneNumber: null
-      , dateOfBirth: null
+      { name: null,
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
       })
   })
 
-  it('extends given object correctly', function() {
-    var schema = createContactSchema()
+  it('extends given object correctly', () => {
+    const schema = createContactSchema()
     schema.makeDefault({ name: 'Paul' }).should.eql(
-      { name: 'Paul'
-      , age: 0
-      , active: true
-      , phoneNumber: null
-      , dateOfBirth: null
+      { name: 'Paul',
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
       })
   })
 
-  it('strips out properties not in the schema', function() {
-    var schema = createContactSchema()
+  it('strips out properties not in the schema', () => {
+    const schema = createContactSchema()
     schema.makeDefault({ name: 'Paul', extra: 'This should not be here' }).should.eql(
-      { name: 'Paul'
-      , age: 0
-      , active: true
-      , phoneNumber: null
-      , dateOfBirth: null
+      { name: 'Paul',
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
       })
   })
 
-  it('creates defaults for sub-schema', function() {
-    var schema = createBlogSchema()
+  it('creates defaults for sub-schema', () => {
+    const schema = createBlogSchema()
     schema.makeDefault().should.eql(
-      { title: null
-      , body: null
-      , author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null }
-      , comments: []
+      { title: null,
+        body: null,
+        author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+        comments: []
       })
   })
 
-  it('extends given object correctly for sub-schemas', function() {
-    var schema = createBlogSchema()
+  it('extends given object correctly for sub-schemas', () => {
+    const schema = createBlogSchema()
     schema.makeDefault(
-      { title: 'Mr. Blogger’s Post'
-      , author: { name: 'Mr. Blogger' }
-    }).should.eql(
-      { title: 'Mr. Blogger’s Post'
-      , body: null
-      , author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null }
-      , comments: []
+      { title: 'Mr. Blogger’s Post',
+        author: { name: 'Mr. Blogger' }
+      }).should.eql(
+      { title: 'Mr. Blogger’s Post',
+        body: null,
+        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+        comments: []
       })
   })
 
-  it('allows sub-schemas properties to set a default value', function() {
-    var schema = createBlogSchema()
+  it('allows sub-schemas properties to set a default value', () => {
+    const schema = createBlogSchema()
     schema.schema.author.defaultValue = function () {
       return this.type.makeDefault(
-        { name: 'Mr. Mista'
-        , active: false
+        { name: 'Mr. Mista',
+          active: false
         })
     }
     schema.makeDefault().should.eql(
-      { title: null
-      , body: null
-      , author: { name: 'Mr. Mista', age: 0, active: false, phoneNumber: null, dateOfBirth: null }
-      , comments: []
+      { title: null,
+        body: null,
+        author: { name: 'Mr. Mista', age: 0, active: false, phoneNumber: null, dateOfBirth: null },
+        comments: []
       })
   })
 
-  it('allows does not cast sub-schema property default values', function() {
-    var schema = createBlogSchema()
+  it('allows does not cast sub-schema property default values', () => {
+    const schema = createBlogSchema()
     schema.schema.author.defaultValue = null
     schema.makeDefault().should.eql(
-      { title: null
-      , body: null
-      , author: null
-      , comments: []
+      { title: null,
+        body: null,
+        author: null,
+        comments: []
       })
   })
 
-  it('create new instances for Array type', function() {
-    var schema = createBlogSchema()
-      , blogA = schema.makeDefault()
-      , blogB = schema.makeDefault()
+  it('create new instances for Array type', () => {
+    const schema = createBlogSchema()
+    const blogA = schema.makeDefault()
+    const blogB = schema.makeDefault()
 
     blogA.comments.push(1)
     blogA.comments.should.have.lengthOf(1)
     blogB.comments.should.have.lengthOf(0)
   })
 
-  it('makes default on sub-schema objects if type is a function', function() {
-    var schema = createBlogSchema()
-      , obj =
-        { title: 'Mr. Blogger’s Post'
-        , author: { name: 'Mr. Blogger' }
-        }
-      , called = false
+  it('makes default on sub-schema objects if type is a function', () => {
+    const schema = createBlogSchema()
+
+    const obj =
+      { title: 'Mr. Blogger’s Post',
+        author: { name: 'Mr. Blogger' }
+      }
+
+    let called = false
 
     // This function gets called twice, once in makeBlank and once for makeDefault.
     // We want to test the 2nd call
-    schema.schema.author.type = function (model) {
+    schema.schema.author.type = model => {
       if (called === false) return createContactSchema()
       called = true
       assert.deepEqual(model, obj)
@@ -122,10 +123,10 @@ describe('#makeDefault()', function() {
     }
 
     schema.makeDefault(obj).should.eql(
-      { title: 'Mr. Blogger’s Post'
-      , body: null
-      , author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null }
-      , comments: []
+      { title: 'Mr. Blogger’s Post',
+        body: null,
+        author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+        comments: []
       })
   })
 })
