@@ -5,12 +5,12 @@ const createBlogSchema = helpers.createBlogSchema
 const assert = require('assert')
 
 describe('#makeDefault()', () => {
-  it('without a customer schema creates a empty object', () => {
+  test('without a customer schema creates a empty object', () => {
     const schema = schemata()
     schema.makeDefault().should.eql({})
   })
 
-  it('returns correct object', () => {
+  test('returns correct object', () => {
     const schema = createContactSchema()
     schema.makeDefault().should.eql(
       { name: null,
@@ -21,7 +21,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('extends given object correctly', () => {
+  test('extends given object correctly', () => {
     const schema = createContactSchema()
     schema.makeDefault({ name: 'Paul' }).should.eql(
       { name: 'Paul',
@@ -32,7 +32,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('strips out properties not in the schema', () => {
+  test('strips out properties not in the schema', () => {
     const schema = createContactSchema()
     schema.makeDefault({ name: 'Paul', extra: 'This should not be here' }).should.eql(
       { name: 'Paul',
@@ -43,7 +43,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('creates defaults for sub-schema', () => {
+  test('creates defaults for sub-schema', () => {
     const schema = createBlogSchema()
     schema.makeDefault().should.eql(
       { title: null,
@@ -53,7 +53,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('extends given object correctly for sub-schemas', () => {
+  test('extends given object correctly for sub-schemas', () => {
     const schema = createBlogSchema()
     schema.makeDefault(
       { title: 'Mr. Blogger’s Post',
@@ -66,7 +66,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('allows sub-schemas properties to set a default value', () => {
+  test('allows sub-schemas properties to set a default value', () => {
     const schema = createBlogSchema()
     schema.schema.author.defaultValue = function () {
       return this.type.makeDefault(
@@ -82,7 +82,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('allows does not cast sub-schema property default values', () => {
+  test('allows does not cast sub-schema property default values', () => {
     const schema = createBlogSchema()
     schema.schema.author.defaultValue = null
     schema.makeDefault().should.eql(
@@ -93,7 +93,7 @@ describe('#makeDefault()', () => {
       })
   })
 
-  it('create new instances for Array type', () => {
+  test('create new instances for Array type', () => {
     const schema = createBlogSchema()
     const blogA = schema.makeDefault()
     const blogB = schema.makeDefault()
@@ -103,7 +103,7 @@ describe('#makeDefault()', () => {
     blogB.comments.should.have.lengthOf(0)
   })
 
-  it('makes default on sub-schema objects if type is a function', () => {
+  test('makes default on sub-schema objects if type is a function', () => {
     const schema = createBlogSchema()
 
     const obj =

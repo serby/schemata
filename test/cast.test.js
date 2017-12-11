@@ -19,7 +19,7 @@ function createArraySchema () {
 }
 
 describe('#cast()', () => {
-  it('converts types correctly', () => {
+  test('converts types correctly', () => {
     const schema = createContactSchema()
     Object.keys(assertions).forEach(type => {
       // Even = expected, odd = supplied
@@ -32,7 +32,7 @@ describe('#cast()', () => {
     })
   })
 
-  it('converts arrays correctly', () => {
+  test('converts arrays correctly', () => {
     const schema = createArraySchema();
     [ [], null, '' ].forEach(value => {
       Array.isArray(schema.castProperty(Array, value)).should.equal(true)
@@ -44,7 +44,7 @@ describe('#cast()', () => {
     })
   })
 
-  it('converts object correctly', () => {
+  test('converts object correctly', () => {
     const schema = createArraySchema();
     [ '', 'hello', [], undefined ].forEach(value => {
       Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0)
@@ -55,14 +55,14 @@ describe('#cast()', () => {
     true.should.equal(schema.castProperty(Object, null) === null)
   })
 
-  it('throws exception on unknown type', () => {
+  test('throws exception on unknown type', () => {
     const schema = createContactSchema();
     ((() => {
       schema.castProperty(undefined)
     })).should.throwError()
   })
 
-  it('converts number types of properties correctly', () => {
+  test('converts number types of properties correctly', () => {
     const schema = createContactSchema()
     const type = 'number'
     let cast
@@ -74,7 +74,7 @@ describe('#cast()', () => {
     }
   })
 
-  it('converts boolean types of properties correctly', () => {
+  test('converts boolean types of properties correctly', () => {
     const schema = createContactSchema()
     const type = 'boolean'
     let cast
@@ -87,14 +87,14 @@ describe('#cast()', () => {
     }
   })
 
-  it('does not effect untyped properties', () => {
+  test('does not effect untyped properties', () => {
     const schema = createContactSchema()
     schema.cast({ phoneNumber: '555-0923' }).should.eql({
       phoneNumber: '555-0923'
     })
   })
 
-  it('casts properties that have a subschema', () => {
+  test('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
     const obj = schema.cast(
@@ -106,7 +106,7 @@ describe('#cast()', () => {
     obj.author.dateOfBirth.should.be.instanceOf(Date)
   })
 
-  it('casts properties that have a subschema', () => {
+  test('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
     const initialObj =
@@ -124,7 +124,7 @@ describe('#cast()', () => {
     obj.author.dateOfBirth.should.be.instanceOf(Date)
   })
 
-  it('casts properties that have null subschemas', () => {
+  test('casts properties that have null subschemas', () => {
     const schema = createBlogSchema()
 
     const initialObj =
@@ -142,7 +142,7 @@ describe('#cast()', () => {
     assert.strictEqual(obj.author, null)
   })
 
-  it('casts properties that are an array of subschemas', () => {
+  test('casts properties that are an array of subschemas', () => {
     const schema = createBlogSchema()
 
     const obj = schema.cast(
@@ -154,7 +154,7 @@ describe('#cast()', () => {
     obj.comments[0].created.should.be.instanceOf(Date)
   })
 
-  it('casts properties that have a conditional/function type', () => {
+  test('casts properties that have a conditional/function type', () => {
     const vehicleSchema = schemata(
       { type: { type: String },
         tyreWear:
