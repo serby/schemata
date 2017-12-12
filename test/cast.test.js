@@ -1,6 +1,5 @@
 const schemata = require('../')
 const helpers = require('./helpers')
-const should = require('should')
 const assert = require('assert')
 const createContactSchema = helpers.createContactSchema
 const createBlogSchema = helpers.createBlogSchema
@@ -26,8 +25,7 @@ describe('#cast()', () => {
       for (let i = 0; i < assertions[type].length; i += 2) {
         let cast
         cast = schema.castProperty(typeMap[type], assertions[type][i + 1])
-        should.strictEqual(cast, assertions[type][i]
-          , `Failed to cast '${type}' (test ${i}) from '${assertions[type][i + 1]}' to '${assertions[type][i]}' instead got '${cast}'`)
+        expect(cast).toEqual(assertions[type][i])
       }
     })
   })
@@ -35,31 +33,31 @@ describe('#cast()', () => {
   test('converts arrays correctly', () => {
     const schema = createArraySchema();
     [ [], null, '' ].forEach(value => {
-      Array.isArray(schema.castProperty(Array, value)).should.equal(true)
-      schema.castProperty(Array, value).should.have.lengthOf(0)
+      expect(Array.isArray(schema.castProperty(Array, value))).toBe(true)
+      expect(schema.castProperty(Array, value)).toHaveLength(0)
     });
     [ [ 1 ], [ 'a' ] ].forEach(value => {
-      Array.isArray(schema.castProperty(Array, value)).should.equal(true)
-      schema.castProperty(Array, value).should.have.lengthOf(1)
+      expect(Array.isArray(schema.castProperty(Array, value))).toBe(true)
+      expect(schema.castProperty(Array, value)).toHaveLength(1)
     })
   })
 
   test('converts object correctly', () => {
     const schema = createArraySchema();
     [ '', 'hello', [], undefined ].forEach(value => {
-      Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(0)
+      expect(Object.keys(schema.castProperty(Object, value))).toHaveLength(0)
     });
     [ { a: 'b' } ].forEach(value => {
-      Object.keys(schema.castProperty(Object, value)).should.have.lengthOf(1)
+      expect(Object.keys(schema.castProperty(Object, value))).toHaveLength(1)
     })
-    true.should.equal(schema.castProperty(Object, null) === null)
+    expect(true).toBe(schema.castProperty(Object, null) === null)
   })
 
   test('throws exception on unknown type', () => {
-    const schema = createContactSchema();
-    ((() => {
+    const schema = createContactSchema()
+    expect(() => {
       schema.castProperty(undefined)
-    })).should.throwError()
+    }).toThrowError(/Missing type/)
   })
 
   test('converts number types of properties correctly', () => {
@@ -69,8 +67,7 @@ describe('#cast()', () => {
 
     for (let i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ age: assertions[type][i + 1] })
-      cast.should.eql({ age: assertions[type][i] }
-        , `Failed to cast '${type}' from '${assertions[type][i + 1]}' to '${assertions[type][i]}' instead got '${cast.age}' ${JSON.stringify(cast)}`)
+      expect(cast).toEqual({ age: assertions[type][i] })
     }
   })
 
@@ -81,15 +78,15 @@ describe('#cast()', () => {
 
     for (let i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ active: assertions[type][i + 1] })
-      cast.should.eql({
+      expect(cast).toEqual({
         active: assertions[type][i]
-      }, `Failed to cast '${type}' from '${assertions[type][i + 1]}' to '${assertions[type][i]}' instead got '${cast.active}'${JSON.stringify(cast)}`)
+      })
     }
   })
 
   test('does not effect untyped properties', () => {
     const schema = createContactSchema()
-    schema.cast({ phoneNumber: '555-0923' }).should.eql({
+    expect(schema.cast({ phoneNumber: '555-0923' })).toEqual({
       phoneNumber: '555-0923'
     })
   })
@@ -103,7 +100,7 @@ describe('#cast()', () => {
         comments: []
       })
 
-    obj.author.dateOfBirth.should.be.instanceOf(Date)
+    expect(obj.author.dateOfBirth).toBeInstanceOf(Date)
   })
 
   test('casts properties that have a subschema', () => {
@@ -115,13 +112,13 @@ describe('#cast()', () => {
         comments: []
       }
 
-    schema.schema.author.type = model => {
+    schema.getProperties().author.type = model => {
       assert.deepEqual(model, initialObj)
       return createContactSchema()
     }
 
     const obj = schema.cast(initialObj)
-    obj.author.dateOfBirth.should.be.instanceOf(Date)
+    expect(obj.author.dateOfBirth).toBeInstanceOf(Date)
   })
 
   test('casts properties that have null subschemas', () => {
@@ -133,7 +130,7 @@ describe('#cast()', () => {
         comments: []
       }
 
-    schema.schema.author.type = model => {
+    schema.getProperties().author.type = model => {
       assert.deepEqual(model, initialObj)
       return createContactSchema()
     }
@@ -151,7 +148,7 @@ describe('#cast()', () => {
         comments: [ { created: (new Date()).toISOString() } ]
       })
 
-    obj.comments[0].created.should.be.instanceOf(Date)
+    expect(obj.comments[0].created).toBeInstanceOf(Date)
   })
 
   test('casts properties that have a conditional/function type', () => {
@@ -181,9 +178,9 @@ describe('#cast()', () => {
     assert.strictEqual(bike.tyreWear.front, 0)
     assert.strictEqual(bike.tyreWear.back, 2)
 
-    should.strictEqual(car.tyreWear.nearsideFront, 0)
-    should.strictEqual(car.tyreWear.offsideFront, 2)
-    should.strictEqual(car.tyreWear.nearsideBack, 3)
-    should.strictEqual(car.tyreWear.offsideBack, 5)
+    expect(car.tyreWear.nearsideFront).toEqual(0)
+    expect(car.tyreWear.offsideFront).toEqual(2)
+    expect(car.tyreWear.nearsideBack).toEqual(3)
+    expect(car.tyreWear.offsideBack).toEqual(5)
   })
 })

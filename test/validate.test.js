@@ -71,82 +71,86 @@ describe('#validate()', () => {
   test('does not error on schemas without validation', done => {
     const schema = createContactSchema()
     schema.validate(schema.makeDefault({ name: 'Paul' }), 'all', (ignoreError, errors) => {
-      errors.should.eql({})
+      expect(errors).toEqual({})
       done()
     })
   })
 
   test('returns error for missing property', done => {
-    const schema = createContactSchema()
-
-    schema.schema.name.should.not.have.property('validators')
-    schema.schema.name.validators = {
+    const properties = createContactSchema().getProperties()
+    expect(properties.name).not.toHaveProperty('validators')
+    properties.name.validators = {
       all: [ validity.required ]
     }
-
+    const schema = schemata(properties)
     schema.validate(schema.makeDefault({ name: '' }), 'all', (ignoreError, errors) => {
-      errors.should.eql({ name: 'Full Name is required' })
+      expect(errors).toEqual({ name: 'Full Name is required' })
       done()
     })
   })
 
   test('uses the [all] set by default', done => {
-    const schema = createContactSchema()
-    schema.schema.name.validators = {
+    const properties = createContactSchema().getProperties()
+    expect(properties.name).not.toHaveProperty('validators')
+    properties.name.validators = {
       all: [ validity.required ]
     }
+    const schema = schemata(properties)
 
     schema.validate(schema.makeDefault({ name: '' }), '', (ignoreError, errors) => {
-      errors.should.eql({ name: 'Full Name is required' })
+      expect(errors).toEqual({ name: 'Full Name is required' })
       done()
     })
   })
 
   test('returns error for missing property but not for valid property', done => {
-    const schema = createContactSchema()
-
-    schema.schema.name.validators = {
+    const properties = createContactSchema().getProperties()
+    expect(properties.name).not.toHaveProperty('validators')
+    properties.name.validators = {
       all: [ validity.required ]
     }
 
-    schema.schema.age.validators = {
+    properties.age.validators = {
       all: [ validity.required ]
     }
+
+    const schema = schemata(properties)
 
     schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', (ignoreError, errors) => {
-      errors.should.eql({ name: 'Full Name is required' })
+      expect(errors).toEqual({ name: 'Full Name is required' })
       done()
     })
   })
 
   test('uses all validators', done => {
-    const schema = createContactSchema()
+    const properties = createContactSchema().getProperties()
 
-    schema.schema.name.validators = {
+    properties.name.validators = {
       all: [ validity.required, validity.length(2, 4) ]
     }
-
+    const schema = schemata(properties)
     schema.validate(schema.makeDefault({ name: 'A' }), 'all', (ignoreError, errors) => {
-      errors.should.eql({ name: 'Full Name must be between 2 and 4 in length' })
+      expect(errors).toEqual({ name: 'Full Name must be between 2 and 4 in length' })
       done()
     })
   })
 
   test('validates only for tag passed in', done => {
-    const schema = createContactSchema()
+    const properties = createContactSchema().getProperties()
 
     // Adding required validation to a schema property with a tag
-    schema.schema.name.validators = {
+    properties.name.validators = {
       all: [ validity.required ]
     }
 
     // Adding required validation to a schema property without a tag
-    schema.schema.age.validators = {
+    properties.age.validators = {
       all: [ validity.required ]
     }
 
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), 'all', 'update', (ignoreError, errors) => {
-      errors.should.eql({
+      expect(errors).toEqual({
         name: 'Full Name is required'
       })
       done()
@@ -154,22 +158,23 @@ describe('#validate()', () => {
   })
 
   test('validates by tag and by set', done => {
-    const schema = createContactSchema()
+    const properties = createContactSchema().getProperties()
 
-    schema.schema.name.validators = {
+    properties.name.validators = {
       all: [ validity.required ]
     }
 
-    schema.schema.name.tag = [ 'newTag' ]
+    properties.name.tag = [ 'newTag' ]
 
-    schema.schema.age.validators = {
+    properties.age.validators = {
       all: [ validity.required ]
     }
 
-    schema.schema.age.tag = [ 'differentTag' ]
+    properties.age.tag = [ 'differentTag' ]
 
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), 'all', 'newTag', (ignoreError, errors) => {
-      errors.should.eql({
+      expect(errors).toEqual({
         name: 'Full Name is required'
       })
       done()
@@ -177,32 +182,34 @@ describe('#validate()', () => {
   })
 
   test('allows tag and set to be optional parameters', done => {
-    const schema = createContactSchema()
+    const properties = createContactSchema().getProperties()
 
-    schema.schema.name.validators = {
+    properties.name.validators = {
       all: [ validity.required ]
     }
 
-    schema.schema.age.validators = {
+    properties.age.validators = {
       all: [ validity.required ]
     }
-
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      errors.should.eql(
-        { name: 'Full Name is required',
-          age: 'Age is required'
-        })
+      expect(errors).toEqual({ name: 'Full Name is required',
+        age: 'Age is required'
+      })
       done()
     })
   })
 
   test('Validates sub-schemas', () => {
-    const schema = createBlogSchema()
-    schema.schema.author.type.schema.age.validators = {
+    const properties = createBlogSchema().getProperties()
+    const subSchemaProperties = properties.author.type.getProperties()
+    subSchemaProperties.age.validators = {
       all: [ validity.required ]
     }
+    properties.author.type = schemata(subSchemaProperties)
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      errors.should.eql({ author: {
+      expect(errors).toEqual({ author: {
         age: 'Age is required'
       } })
     })
@@ -211,19 +218,20 @@ describe('#validate()', () => {
   test(
     'validates sub-schemas where subschema is returned from the type property function',
     done => {
-      const schema = createBlogSchema()
-      const ageRequiredContactSchema = createContactSchema()
+      const properties = createBlogSchema().getProperties()
+      const subSchemaProperties = createContactSchema().getProperties()
       const object = { author: 1 }
 
-      ageRequiredContactSchema.schema.age.validators = {
+      subSchemaProperties.age.validators = {
         all: [ validity.required ]
       }
 
-      schema.schema.author.type = obj => {
+      properties.author.type = obj => {
         assert.deepEqual(obj, object)
-        return ageRequiredContactSchema
+        return schemata(subSchemaProperties)
       }
 
+      const schema = schemata(properties)
       schema.validate(object, (ignoreError, errors) => {
         assert.deepEqual(errors, { author: { age: 'Age is required' } })
         return done()
@@ -236,38 +244,40 @@ describe('#validate()', () => {
     () => {
       const schema = createBlogSchema()
       schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-        errors.should.eql({})
+        expect(errors).toEqual({})
       })
     }
   )
 
   test('Validates any defined validators even on sub-schemas', () => {
-    const schema = createBlogSchema()
-    schema.schema.author.validators = {
+    const properties = createBlogSchema().getProperties()
+    properties.author.validators = {
       all: [ propertyValidator((key, object, callback) => {
         callback(null)
       }, 'Bad') ]
     }
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      errors.should.eql({ author: 'Bad' })
+      expect(errors).toEqual({ author: 'Bad' })
     })
   })
 
   test('validators failure should prevent their sub-schema validation', () => {
-    const schema = createBlogSchema()
-    schema.schema.author.type.schema.age.validators = {
+    const properties = createBlogSchema().getProperties()
+    properties.author.type.getProperties().age.validators = {
       all: [ propertyValidator((key, object, callback) => {
-        'This should not get called'.should.equal(false)
+        expect('This should not get called').toBe(false)
         callback(null)
       }, 'sub-schema property validation (This should not be seen)') ]
     }
-    schema.schema.author.validators = {
+    properties.author.validators = {
       all: [ propertyValidator((key, object, callback) => {
         callback(null)
       }, 'First level property validation') ]
     }
+    const schema = schemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      errors.should.eql({ author: 'First level property validation' })
+      expect(errors).toEqual({ author: 'First level property validation' })
     })
   })
 
@@ -276,25 +286,27 @@ describe('#validate()', () => {
     done => {
       // this is an edge case, and having the required validator on author is crucial. without it,
       // the bug won’t manifest itself
-      const schema = createBlogSchema()
-      schema.schema.title.validators = {
+      const properties = createBlogSchema().getProperties()
+      properties.title.validators = {
         all: [ propertyValidator((key, object, callback) => {
           callback(null)
         }, 'First level property validation failure') ]
       }
 
-      schema.schema.author.type.schema.age.validators = {
+      properties.author.validators = {
+        all: [ validity.required ]
+      }
+
+      const subSchemaProperties = properties.author.type.getProperties()
+      subSchemaProperties.age.validators = {
         all: [ propertyValidator((key, object, callback) => {
           callback(null)
         }, 'sub-schema property validation') ]
       }
-
-      schema.schema.author.validators = {
-        all: [ validity.required ]
-      }
-
+      properties.author.type = schemata(subSchemaProperties)
+      const schema = schemata(properties)
       schema.validate(schema.makeBlank(), (error, errors) => {
-        errors.should.eql({
+        expect(errors).toEqual({
           author: { age: 'sub-schema property validation' },
           title: 'First level property validation failure'
         })
@@ -304,26 +316,27 @@ describe('#validate()', () => {
   )
 
   test('Validates array sub-schemas', done => {
-    const schema = createBlogSchema()
+    const properties = createBlogSchema().getProperties()
+    const subSchemaProperties = properties.comments.type.arraySchema.getProperties()
+
+    subSchemaProperties.email.validators = {
+      all: [ validity.required ]
+    }
+
+    subSchemaProperties.comment.validators = {
+      all: [ validity.required ]
+    }
+    properties.comments.type = schemata.Array(schemata(subSchemaProperties))
+    const schema = schemata(properties)
     const model = schema.makeBlank()
-    const subSchema = schema.schema.comments.type.arraySchema.schema
-
-    subSchema.email.validators = {
-      all: [ validity.required ]
-    }
-
-    subSchema.comment.validators = {
-      all: [ validity.required ]
-    }
-
     model.comments.push({ email: null, comment: null })
     model.comments.push({ email: null, comment: 'comment' })
     model.comments.push({ email: 'dom@test.com', comment: null })
 
     schema.validate(model, (ignoreError, errors) => {
-      errors.comments[0].should.eql({ email: 'Email is required', comment: 'Comment is required' })
-      errors.comments[1].should.eql({ email: 'Email is required' })
-      errors.comments[2].should.eql({ comment: 'Comment is required' })
+      expect(errors.comments[0]).toEqual({ email: 'Email is required', comment: 'Comment is required' })
+      expect(errors.comments[1]).toEqual({ email: 'Email is required' })
+      expect(errors.comments[2]).toEqual({ comment: 'Comment is required' })
 
       done()
     })
@@ -349,7 +362,7 @@ describe('#validate()', () => {
         }
 
       schema.validate(model, (error, errors) => {
-        errors.should.eql(validationErrors)
+        expect(errors).toEqual(validationErrors)
         done(error)
       })
     }
@@ -374,20 +387,22 @@ describe('#validate()', () => {
   )
 
   test('should cause an error if a subSchema is passed un-invoked', done => {
-    const schema = createBlogSchemaWithSubSchemaNotInitialised()
-    const model = schema.makeBlank()
+    const properties = createBlogSchemaWithSubSchemaNotInitialised().getProperties()
+
     const testValues = [ undefined, null, '', 0, [] ]
-    const subSchema = schema.schema.comments.type.arraySchema.schema
+    const subSchema = properties.comments.type.arraySchema.getProperties()
 
     subSchema.email.validators = {
       all: [ validity.required ]
     }
-
+    properties.comments.type = schemata.Array(schemata(subSchema))
+    const schema = schemata(properties)
+    const model = schema.makeBlank()
     async.forEach(testValues, (value, next) => {
       model.comments = value
 
       schema.validate(model, (ignoreError, errors) => {
-        errors.should.eql({})
+        expect(errors).toEqual({})
         next()
       })
     }, done)
@@ -396,20 +411,21 @@ describe('#validate()', () => {
   test(
     'does not try and validate array sub-schemas that are falsy or []',
     done => {
-      const schema = createBlogSchema()
-      const model = schema.makeBlank()
+      const properties = createBlogSchema().getProperties()
       const testValues = [ undefined, null, '', 0, [] ]
-      const subSchema = schema.schema.comments.type.arraySchema.schema
+      const subSchema = properties.comments.type.arraySchema.getProperties()
 
       subSchema.email.validators = {
         all: [ validity.required ]
       }
-
+      properties.comments.type = schemata.Array(schemata(subSchema))
+      const schema = schemata(properties)
+      const model = schema.makeBlank()
       async.forEach(testValues, (value, next) => {
         model.comments = value
 
         schema.validate(model, (ignoreError, errors) => {
-          errors.should.eql({})
+          expect(errors).toEqual({})
           next()
         })
       }, done)
@@ -425,21 +441,20 @@ describe('#validate()', () => {
       kid.toy = value
 
       kidSchema.validate(kid, (ignoreError, errors) => {
-        errors.should.eql({}, `Should not run validation when toy is ${value}`)
+        expect(errors).toEqual({})
         next()
       })
     }, done)
   })
 
   test('allows error response to be a string instead of Error object', done => {
-    const schema = createContactSchema()
-
-    schema.schema.name.validators = {
+    const properties = createContactSchema().getProperties()
+    properties.name.validators = {
       all: [ (key, errorProperty, object, callback) => callback(null, object[key] ? undefined : `${errorProperty} is required`) ]
     }
-
+    const schema = schemata(properties)
     schema.validate(schema.makeDefault({ name: '' }), (ignoreError, errors) => {
-      errors.should.eql({ name: 'Full Name is required' })
+      expect(errors).toEqual({ name: 'Full Name is required' })
       done()
     })
   })
@@ -457,8 +472,8 @@ describe('#validate()', () => {
   test(
     'should pass the parent to callback if it has five arguments and is a subschema',
     done => {
-      const schema = createBlogSchema()
-      const subSchema = schema.schema.author.type.schema
+      const properties = createBlogSchema().getProperties()
+      const subSchema = properties.author.type.getProperties()
       let schemaParent
 
       subSchema.name.validators = {
@@ -467,9 +482,10 @@ describe('#validate()', () => {
           return callback(null, object[key] ? undefined : `${errorProperty} is required`)
         } ]
       }
-
+      properties.author.type = schemata(subSchema)
+      const schema = schemata(properties)
       schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
-        schemaParent.should.eql(fixtures.blog, 'Schema parent was not returned in the callback')
+        expect(schemaParent).toEqual(fixtures.blog)
         done()
       })
     }
@@ -478,37 +494,36 @@ describe('#validate()', () => {
   test(
     'should pass the schema as parent to callback if it has five arguments and is not a subschema',
     done => {
-      const schema = createBlogSchema()
+      const properties = createBlogSchema().getProperties()
       let schemaParent
-
-      schema.schema.title.validators = {
+      properties.title.validators = {
         all: [ (key, errorProperty, object, parent, callback) => {
           schemaParent = parent
           return callback(null, object[key] ? undefined : `${errorProperty} is required`)
         } ]
       }
-
+      const schema = schemata(properties)
       schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
-        schemaParent.should.eql(fixtures.blog, 'Schema parent was not the schema itself')
+        expect(schemaParent).toEqual(fixtures.blog)
         done()
       })
     }
   )
 
   test('should not leak parents across validates', done => {
-    const schema = createBlogSchema()
+    const properties = createBlogSchema().getProperties()
     const schemaParents = []
     const expectedParents = fixtures.expectedParents
     let expectedParent
     let observedParent
 
-    schema.schema.title.validators = {
+    properties.title.validators = {
       all: [ (key, errorProperty, object, parent, callback) => {
         schemaParents.push(parent)
         return callback(null, object[key] ? undefined : `${errorProperty} is required`)
       } ]
     }
-
+    const schema = schemata(properties)
     async.eachSeries(expectedParents, (model, next) => {
       schema.validate(schema.makeDefault(model), () => {
         expectedParent = expectedParents[schemaParents.length - 1]

@@ -18,8 +18,9 @@
     }
   ],
   "dependencies": {
-    "async": "^2.0.1",
-    "is-primitive": "^2.0.0",
+    "async": "^2.6.0",
+    "is-primitive": "^3.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "piton-string-utils": "^0.3.0"
   },
   "devDependencies": {
@@ -31,10 +32,6 @@
     "eslint-plugin-standard": "^3.0.1",
     "istanbul": "^0.4.5",
     "jest": "^21.2.1",
-    "jscs": "^3.0.7",
-    "jshint": "^2.9.3",
-    "mocha": "^3.1.0",
-    "should": "^11.1.0",
     "validity": "^0.0.3"
   },
   "keywords": [
@@ -45,14 +42,13 @@
   "repository": "git://github.com/serby/schemata.git",
   "main": "schemata",
   "scripts": {
-    "lint": "jshint . && jscs . -c ./.jscsrc",
-    "pretest": "npm run lint",
-    "test": "istanbul cover ./node_modules/.bin/_mocha -- -R spec -r should",
-    "posttest": "istanbul check-coverage --statements 95 --branches 85 --functions 100 --lines 95 && rm -rf coverage",
-    "prepublish": "npm test && npm prune"
+    "lint": "eslint --fix -f unix .",
+    "pretest": "yarn lint",
+    "test": "jest",
+    "prepublish": "yarn test"
   },
   "engines": {
-    "node": ">= 0.10"
+    "node": ">= 6"
   },
   "license": "ISC"
 }

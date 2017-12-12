@@ -3,7 +3,7 @@ const schemata = require('../')
 describe('#schema', () => {
   test('should default to an empty schemata', () => {
     const empty = schemata()
-    empty.schema.should.eql({})
+    expect(empty.getProperties()).toEqual({})
   })
 
   test(
@@ -25,11 +25,11 @@ describe('#schema', () => {
           ]
 
       badSchemas.forEach(s => {
-        ((() => { schemata(s) })).should.throw()
+        expect(() => { schemata(s) }).toThrowError()
       })
 
       goodSchemas.forEach(s => {
-        ((() => { schemata(s) })).should.not.throw()
+        expect(() => { schemata(s) }).not.toThrowError()
       })
     }
   )

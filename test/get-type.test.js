@@ -16,11 +16,11 @@ describe('#getType()', () => {
   test('should call the function with the model if provided', () => {
     const model = { a: 1 }
     const schema = schemata()
-
-    assert.deepEqual(getType(m => {
+    const type = m => {
       assert.deepEqual(m, model)
       return schema
-    }, model), schema)
+    }
+    assert.deepEqual(getType(type, model), schema)
   })
 
   test(

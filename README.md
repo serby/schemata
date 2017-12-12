@@ -14,6 +14,11 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v4.0.0
+
+Node 6+ upgrade. Functionally the same as v3.2.0. This is a stepping stone
+release before v5 which will have major breaking changes.
+
 ### v3.2.0
 
 * Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.

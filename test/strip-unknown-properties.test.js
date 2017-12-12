@@ -7,14 +7,16 @@ const assert = require('assert')
 describe('#stripUnknownProperties()', () => {
   test('strips out extra properties', () => {
     const schema = createContactSchema()
-    schema.stripUnknownProperties({ name: 'Paul', extra: 'This should not be here' }).should.eql({
+    expect(
+      schema.stripUnknownProperties({ name: 'Paul', extra: 'This should not be here' })
+    ).toEqual({
       name: 'Paul'
     })
   })
 
   test('strips out properties without the given tag', () => {
     const schema = createContactSchema()
-    schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'update').should.eql({
+    expect(schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'update')).toEqual({
       name: 'Paul'
     })
   })
@@ -23,33 +25,33 @@ describe('#stripUnknownProperties()', () => {
     const contactSchema = createContactSchema()
     const blogschema = createBlogSchema()
 
-    contactSchema.stripUnknownProperties({ age: null, active: null, extra: null })
-      .should.eql({ age: null, active: null })
+    expect(
+      contactSchema.stripUnknownProperties({ age: null, active: null, extra: null })
+    ).toEqual({ age: null, active: null })
 
-    blogschema.stripUnknownProperties({ author: null, comments: null })
-      .should.eql({ author: null, comments: null })
+    expect(blogschema.stripUnknownProperties({ author: null, comments: null })).toEqual({ author: null, comments: null })
   })
 
   test(
     'strips out properties without the given tag and returns empty object if tag is not found',
     () => {
       const schema = createContactSchema()
-      schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'BADTAG').should.eql({})
+      expect(schema.stripUnknownProperties({ name: 'Paul', age: 21 }, 'BADTAG')).toEqual({})
     }
   )
 
   test('strips out properties from sub-schemas', () => {
     const schema = createBlogSchema()
-    schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' } })
-      .should.eql({ author: { name: 'Paul' } })
+    expect(
+      schema.stripUnknownProperties({ author: { name: 'Paul', extra: 'Not here' } })
+    ).toEqual({ author: { name: 'Paul' } })
   })
 
   test(
     'does not attempt to strip properties from null sub-schema objects',
     () => {
       const schema = createBlogSchema()
-      schema.stripUnknownProperties({ author: null })
-        .should.eql({ author: null })
+      expect(schema.stripUnknownProperties({ author: null })).toEqual({ author: null })
     }
   )
 
@@ -59,20 +61,18 @@ describe('#stripUnknownProperties()', () => {
       const schema = createBlogSchema()
       const obj = { author: { name: 'Paul', extra: 'Not here' } }
 
-      schema.schema.author.type = model => {
+      schema.getProperties().author.type = model => {
         assert.deepEqual(model, obj)
         return createContactSchema()
       }
 
-      schema.stripUnknownProperties(obj)
-        .should.eql({ author: { name: 'Paul' } })
+      expect(schema.stripUnknownProperties(obj)).toEqual({ author: { name: 'Paul' } })
     }
   )
 
   test('keeps empty array sub-schemas empty', () => {
     const schema = createBlogSchema()
-    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [] })
-      .should.eql({ author: { name: 'Paul' }, comments: [] })
+    expect(schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [] })).toEqual({ author: { name: 'Paul' }, comments: [] })
   })
 
   test('strips out properties from array sub-schemas', () => {
@@ -80,8 +80,11 @@ describe('#stripUnknownProperties()', () => {
     const comment = createCommentSchema().makeBlank()
 
     comment.extra = 'Hello'
-    schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [ comment ] })
-      .should.eql({ author: { name: 'Paul' }, comments: [ { email: null, comment: null, created: null } ] })
+    expect(
+      schema.stripUnknownProperties({ author: { name: 'Paul' }, comments: [ comment ] })
+    ).toEqual(
+      { author: { name: 'Paul' }, comments: [ { email: null, comment: null, created: null } ] }
+    )
   })
 
   test(
@@ -92,9 +95,10 @@ describe('#stripUnknownProperties()', () => {
 
       comment.comment = 'Do not strip out my comment'
       comment.extra = 'This will be striped as its not in the schema at all'
-      schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto', true)
-        .should.eql({ title: 'My Blog',
-          comments:
+      expect(
+        schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto', true)
+      ).toEqual({ title: 'My Blog',
+        comments:
           [ { email: null, comment: 'Do not strip out my comment', created: null } ] })
     }
   )
@@ -107,8 +111,11 @@ describe('#stripUnknownProperties()', () => {
 
       comment.comment = 'Do not strip out my comment'
       comment.extra = 'Hello'
-      schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto')
-        .should.eql({ title: 'My Blog', comments: [ { comment: 'Do not strip out my comment' } ] })
+      expect(
+        schema.stripUnknownProperties({ title: 'My Blog', author: { name: 'Paul' }, comments: [ comment ] }, 'auto')
+      ).toEqual(
+        { title: 'My Blog', comments: [ { comment: 'Do not strip out my comment' } ] }
+      )
     }
   )
 })
