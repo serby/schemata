@@ -272,8 +272,16 @@ const createSchemata = schema => {
       } else {
         throw new Error('Validate called with a bad number of arguments')
       }
-
-      this.validateRecursive(entityObject, entityObject, set, tag, callback)
+      if (typeof callback === 'function') {
+        this.validateRecursive(entityObject, entityObject, set, tag, callback)
+      } else {
+        return new Promise((resolve, reject) => {
+          this.validateRecursive(entityObject, entityObject, set, tag, (err, errors) => {
+            if (err) return reject(err)
+            resolve(errors)
+          })
+        })
+      }
     },
 
     /*
@@ -401,18 +409,20 @@ const createSchemata = schema => {
 function validateArgumentStrategies () {
   function two (validateArgs) {
     const properties = {}
+    const arg = validateArgs[1]
     properties.entityObject = validateArgs[0]
-    properties.set = 'all'
+    properties.set = typeof arg !== 'function' ? arg : 'all'
     properties.tag = undefined
-    properties.callback = validateArgs[1]
+    properties.callback = arg
     return properties
   }
   function three (validateArgs) {
+    const arg = validateArgs[2]
     const properties = {}
     properties.entityObject = validateArgs[0]
     properties.set = validateArgs[1] || 'all'
-    properties.tag = undefined
-    properties.callback = validateArgs[2]
+    properties.tag = typeof arg === 'function' ? undefined : arg
+    properties.callback = arg
     return properties
   }
   function four (validateArgs) {
@@ -424,6 +434,7 @@ function validateArgumentStrategies () {
     return properties
   }
   return {
+    '1': two,
     '2': two,
     '3': three,
     '4': four

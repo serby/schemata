@@ -76,6 +76,23 @@ describe('#validate()', () => {
     })
   })
 
+  test('returns promise if no callback', async done => {
+    const schema = createContactSchema()
+    const errors = await schema.validate(schema.makeDefault({ name: 'Paul' }), 'all')
+    expect(errors).toEqual({})
+    done()
+  })
+
+  test('returns promise with errors', async done => {
+    const properties = createContactSchema().getProperties()
+    expect(properties.name).not.toHaveProperty('validators')
+    properties.name.validators = [ validity.required ]
+    const schema = schemata(properties)
+    const errors = await schema.validate(schema.makeDefault({ }), 'all')
+    expect(errors).toEqual({ name: 'Full Name is required' })
+    done()
+  })
+
   test('returns error for missing property', done => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
