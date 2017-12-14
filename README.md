@@ -14,6 +14,10 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v4.1.0
+
+Validators now return a promise if a callback is not provided.
+
 ### v4.0.0
 
 Node 6+ upgrade. Functionally the same as v3.2.0. This is a stepping stone
