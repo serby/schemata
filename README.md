@@ -14,6 +14,12 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v5.0.0
+
+The main initialization arguments have now changed so you must provide a `name`
+and can also provide a `description`. The schema definition is now set via the
+`properties` property.
+
 ### v4.1.0
 
 Validators now return a promise if a callback is not provided.
@@ -47,21 +53,29 @@ https://github.com/serby/schemata/pull/34 for more details.
 ### Creating a basic schema
 
 ```js
-var schemata = require('schemata')
+const schemata = require('schemata')
 
-var contactSchema = schemata({
-  name: {
-    name: 'Full Name'
-  },
-  age: {
-    type: Number
-    defaultValue: 0
-  },
-  active: {
-    type: Boolean,
-    defaultValue: true
-  },
-  phoneNumber: { // If no type is given String will be assumed
+const contactSchema = schemata({
+  name: 'Contact',
+  description: 'One of my friends or acquaintance',
+  properties: {
+    name: {
+      name: 'Full Name'
+    },
+    age: {
+      type: Number
+      defaultValue: 0
+    },
+    active: {
+      type: Boolean,
+      defaultValue: true
+    },
+    phoneNumber: { // If no type is given String will be assumed
+    },
+    createdDate: {
+      type: Date,
+      defaultValue: () => new Date()
+    }
   }
 })
 ```
@@ -72,12 +86,12 @@ var contactSchema = schemata({
 * **type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
 * **defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
 * **tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
-* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways. Since 3.1, if you only want one set of validators you can set `.validators = [ validatorA, validatorB ]` as a shorthand.
+* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways. Since 3.1, if you only want one set of validators you can set `.validators = [ validatorA, validatorB ]` as a shorthand. Since 4.0.0 you can also omit the callback and provide a promise.
 
 ### Creating a new object
 
 ```js
-var blank = contactSchema.makeBlank()
+const blank = contactSchema.makeBlank()
 ```
     {
       name: null,
@@ -89,7 +103,7 @@ var blank = contactSchema.makeBlank()
 ### Creating a new object with the default values
 
 ```js
-var default = contactSchema.makeDefault()
+const default = contactSchema.makeDefault()
 ```
     {
       name: null,
@@ -144,7 +158,7 @@ The callback must be called with a falsy value (such as undefined or null) if th
 A full validator example:
 
 ```js
-var required = function (propertyName, errorPropertyName, object, callback) {
+const required = function (propertyName, errorPropertyName, object, callback) {
   return callback(object[propertyName] ? undefined : errorPropertyName + ' is required')
 }
 
@@ -163,30 +177,34 @@ For a comprehensive set of validators including: email, integer, string length, 
 Type casting is done in schemata using the **cast()** and **castProperty()** functions. **cast()** is used for when you want to cast multiple properties against a schema, **castProperty()** is used if you want to cast one property and explicitly provide the type.
 
 ```js
-var schemata = require('schemata')
+const schemata = require('schemata')
 
-var person = schemata({
-  name: {
-    type: String
-  },
-  age: {
-    type: Number
-  },
-  active: {
-    type: Boolean
-  },
-  birthday: {
-    type: Date
-  },
-  friends: {
-    type: Array
-  },
-  extraInfo: {
-    type: Object
+const person = schemata({
+  name: 'Person',
+  description: 'Someone',
+  properties: {
+    name: {
+      type: String
+    },
+    age: {
+      type: Number
+    },
+    active: {
+      type: Boolean
+    },
+    birthday: {
+      type: Date
+    },
+    friends: {
+      type: Array
+    },
+    extraInfo: {
+      type: Object
+    }
   }
 })
 
-var objectToCast = {
+const objectToCast = {
   name: 123456,
   age: '83',
   active: 'no',
@@ -196,15 +214,15 @@ var objectToCast = {
 }
 
 var casted = person.cast(objectToCast)
-// casted = {
-//   name: '123456',
-//   age: 83,
-//   active: false,
-//   birthday: Date('Wed Feb 13 1991 00:00:00 GMT+0000 (GMT)'),
-//   friends: [],
-//   extraInfo: {}
-// }
 ```
+    {
+        name: '123456',
+        age: 83,
+        active: false,
+        birthday: Date('Wed Feb 13 1991 00:00:00 GMT+0000 (GMT)'),
+        friends: [],
+        extraInfo: {}
+    }
 
 ### Get friendly name for property
 
@@ -213,16 +231,20 @@ If you want to output the name of a schema property in a human-readable format t
 Consider the following example:
 
 ```js
-var schemata = require('schemata')
+const schemata = require('schemata')
 
-var address = schemata({
-  addressLine1: {},
-  addressLine2: {},
-  addressLine3: {
-    name: 'Town'
-  },
-  addressLine4: {
-    name: 'Region'
+const address = schemata({
+  name: 'Address',
+  description: 'Postal location',
+  properties: {
+    addressLine1: {},
+    addressLine2: {},
+    addressLine3: {
+      name: 'Town'
+    },
+    addressLine4: {
+      name: 'Region'
+    }
   }
 })
 
