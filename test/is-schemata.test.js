@@ -4,7 +4,7 @@ const assert = require('assert')
 
 describe('#isSchemata()', () => {
   test('should return true if it is a schemata object', () => {
-    const person = schemata()
+    const person = schemata({ name: 'Person' })
     assert.equal(isSchemata(person), true)
   })
 

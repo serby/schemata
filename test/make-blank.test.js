@@ -16,8 +16,11 @@ describe('#makeBlank()', () => {
 
   test('creates empty objects for objects type', () => {
     const schema = schemata({
-      contacts: {
-        type: Object
+      name: 'Foo',
+      properties: {
+        contacts: {
+          type: Object
+        }
       }
     })
     expect(schema.makeBlank()).toEqual({ contacts: {} })
@@ -25,8 +28,11 @@ describe('#makeBlank()', () => {
 
   test('creates empty arrays for array type', () => {
     const schema = schemata({
-      images: {
-        type: Array
+      name: 'Foo',
+      properties: {
+        images: {
+          type: Array
+        }
       }
     })
     expect(schema.makeBlank()).toEqual({ images: [] })

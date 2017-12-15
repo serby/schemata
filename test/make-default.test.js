@@ -1,12 +1,14 @@
-const schemata = require('../')
-const helpers = require('./helpers')
-const createContactSchema = helpers.createContactSchema
-const createBlogSchema = helpers.createBlogSchema
 const assert = require('assert')
+const schemata = require('../')
+const {
+  createContactSchema,
+  createBlogSchema,
+  createNamedSchemata
+} = require('./helpers')
 
 describe('#makeDefault()', () => {
   test('without a customer schema creates a empty object', () => {
-    const schema = schemata()
+    const schema = schemata({ name: 'Person' })
     expect(schema.makeDefault()).toEqual({})
   })
 
@@ -67,7 +69,7 @@ describe('#makeDefault()', () => {
       name: 'Mr. Mista',
       active: false
     })
-    expect(schemata(properties).makeDefault()).toEqual({ title: null,
+    expect(createNamedSchemata(properties).makeDefault()).toEqual({ title: null,
       body: null,
       author: { name: 'Mr. Mista', age: 0, active: false, phoneNumber: null, dateOfBirth: null },
       comments: []
@@ -79,7 +81,7 @@ describe('#makeDefault()', () => {
     const properties = schema.getProperties()
     properties.author.defaultValue = null
 
-    expect(schemata(properties).makeDefault()).toEqual({
+    expect(createNamedSchemata(properties).makeDefault()).toEqual({
       title: null,
       body: null,
       author: null,

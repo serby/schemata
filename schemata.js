@@ -14,16 +14,23 @@ const stringUtils = require('piton-string-utils')
 const isPrimitive = require('is-primitive')
 const clone = require('lodash.clonedeep')
 
-const createSchemata = schema => {
-  const internalSchema = clone(schema || {})
+const createSchemata = ({ name, description, properties } = {}) => {
+  if (name === undefined) throw new Error('name is required')
+  const internalSchema = clone(properties || {})
   Object.keys(internalSchema).forEach(k => {
-    if (!schema[k].defaultValue) return
-    if (typeof schema[k].defaultValue === 'function') return
-    if (isPrimitive(schema[k].defaultValue)) return
+    if (!properties[k].defaultValue) return
+    if (typeof properties[k].defaultValue === 'function') return
+    if (isPrimitive(properties[k].defaultValue)) return
     throw new Error(`The defaultValue for the schema property "${k}" must be either a primitive value or a function`)
   })
 
   return {
+    getName () {
+      return name
+    },
+    getDescription () {
+      return description
+    },
     getProperties () {
       return clone(internalSchema)
     },

@@ -1,15 +1,16 @@
-const schemata = require('../')
-const helpers = require('./helpers')
 const assert = require('assert')
-const createContactSchema = helpers.createContactSchema
-const createBlogSchema = helpers.createBlogSchema
+const {
+  createContactSchema,
+  createBlogSchema,
+  createNamedSchemata
+} = require('./helpers')
 const castFixtures = require('./cast-fixtures')
 const assertions = castFixtures.assertions
 const typeMap = castFixtures.typeMap
 const validity = require('validity')
 
 function createArraySchema () {
-  const schema = schemata({
+  const schema = createNamedSchemata({
     images: {
       type: Array
     }
@@ -152,20 +153,20 @@ describe('#cast()', () => {
   })
 
   test('casts properties that have a conditional/function type', () => {
-    const vehicleSchema = schemata(
+    const vehicleSchema = createNamedSchemata(
       { type: { type: String },
-        tyreWear:
-            { type (obj) {
-              // This function takes any configuration of tyres and
-              // just ensures that each of the values is a number
-              const schema = {}
-              if (!obj || !obj.tyreWear) return schemata(schema)
-              Object.keys(obj.tyreWear).forEach(k => {
-                schema[k] = { type: Number, validators: { all: [ validity.required ] } }
-              })
-              return schemata(schema)
-            }
-            }
+        tyreWear: {
+          type (obj) {
+            // This function takes any configuration of tyres and
+            // just ensures that each of the values is a number
+            const schema = {}
+            if (!obj || !obj.tyreWear) return createNamedSchemata(schema)
+            Object.keys(obj.tyreWear).forEach(k => {
+              schema[k] = { type: Number, validators: { all: [ validity.required ] } }
+            })
+            return createNamedSchemata(schema)
+          }
+        }
       })
 
     const bike = vehicleSchema.cast({ type: 'bike', tyreWear: { front: '0', back: '2' } })

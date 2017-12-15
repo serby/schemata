@@ -1,16 +1,18 @@
-const schemata = require('../')
-const helpers = require('./helpers')
-const createContactSchema = helpers.createContactSchema
-const createBlogSchema = helpers.createBlogSchema
+const assert = require('assert')
+const async = require('async')
+const schemata = require('..')
+const {
+  createContactSchema,
+  createBlogSchema,
+  createCommentSchema,
+  createNamedSchemata
+} = require('./helpers')
 const validity = require('validity')
 const propertyValidator = require('validity/property-validator')
-const async = require('async')
-const assert = require('assert')
-const createCommentSchema = helpers.createCommentSchema
 const fixtures = require('./validate-fixtures')
 
 function createBlogSchemaWithSubSchemaNotInitialised () {
-  return schemata(
+  return createNamedSchemata(
     { title: { tag: [ 'auto' ] },
       body: { tag: [ 'auto' ] },
       author: { type: createContactSchema() },
@@ -22,14 +24,14 @@ function createBlogSchemaWithSubSchemaNotInitialised () {
 }
 
 function createKidSchema () {
-  return schemata(
+  return createNamedSchemata(
     { name: { type: String },
       toy: { type: createToySchema() }
     })
 }
 
 function createToySchema () {
-  return schemata(
+  return createNamedSchemata(
     { name: { type: String },
       label: { type: String, validators: [ validity.required ] }
     })
@@ -40,7 +42,7 @@ function asyncValidator (key, name, object, callback) {
 }
 
 function createAsyncValidationSubschema () {
-  return schemata(
+  return createNamedSchemata(
     { id:
       { type: String,
         validators:
@@ -57,7 +59,7 @@ function createAsyncValidationSubschema () {
 }
 
 function createSchemaWithAsyncSubSchema () {
-  return schemata(
+  return createNamedSchemata(
     { items:
       { type: schemata.Array(createAsyncValidationSubschema),
         validators:
@@ -87,7 +89,7 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
     properties.name.validators = [ validity.required ]
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     const errors = await schema.validate(schema.makeDefault({ }), 'all')
     expect(errors).toEqual({ name: 'Full Name is required' })
     done()
@@ -99,7 +101,7 @@ describe('#validate()', () => {
     properties.name.validators = {
       all: [ validity.required ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ name: '' }), 'all', (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name is required' })
       done()
@@ -112,7 +114,7 @@ describe('#validate()', () => {
     properties.name.validators = {
       all: [ validity.required ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
 
     schema.validate(schema.makeDefault({ name: '' }), '', (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name is required' })
@@ -131,7 +133,7 @@ describe('#validate()', () => {
       all: [ validity.required ]
     }
 
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
 
     schema.validate(schema.makeDefault({ name: '', age: 33 }), 'all', (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name is required' })
@@ -145,7 +147,7 @@ describe('#validate()', () => {
     properties.name.validators = {
       all: [ validity.required, validity.length(2, 4) ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ name: 'A' }), 'all', (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name must be between 2 and 4 in length' })
       done()
@@ -165,7 +167,7 @@ describe('#validate()', () => {
       all: [ validity.required ]
     }
 
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), 'all', 'update', (ignoreError, errors) => {
       expect(errors).toEqual({
         name: 'Full Name is required'
@@ -189,7 +191,7 @@ describe('#validate()', () => {
 
     properties.age.tag = [ 'differentTag' ]
 
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), 'all', 'newTag', (ignoreError, errors) => {
       expect(errors).toEqual({
         name: 'Full Name is required'
@@ -208,7 +210,7 @@ describe('#validate()', () => {
     properties.age.validators = {
       all: [ validity.required ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name is required',
         age: 'Age is required'
@@ -223,8 +225,8 @@ describe('#validate()', () => {
     subSchemaProperties.age.validators = {
       all: [ validity.required ]
     }
-    properties.author.type = schemata(subSchemaProperties)
-    const schema = schemata(properties)
+    properties.author.type = createNamedSchemata(subSchemaProperties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
       expect(errors).toEqual({ author: {
         age: 'Age is required'
@@ -245,10 +247,10 @@ describe('#validate()', () => {
 
       properties.author.type = obj => {
         assert.deepEqual(obj, object)
-        return schemata(subSchemaProperties)
+        return createNamedSchemata(subSchemaProperties)
       }
 
-      const schema = schemata(properties)
+      const schema = createNamedSchemata(properties)
       schema.validate(object, (ignoreError, errors) => {
         assert.deepEqual(errors, { author: { age: 'Age is required' } })
         return done()
@@ -273,7 +275,7 @@ describe('#validate()', () => {
         callback(null)
       }, 'Bad') ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
       expect(errors).toEqual({ author: 'Bad' })
     })
@@ -292,7 +294,7 @@ describe('#validate()', () => {
         callback(null)
       }, 'First level property validation') ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
       expect(errors).toEqual({ author: 'First level property validation' })
     })
@@ -320,8 +322,8 @@ describe('#validate()', () => {
           callback(null)
         }, 'sub-schema property validation') ]
       }
-      properties.author.type = schemata(subSchemaProperties)
-      const schema = schemata(properties)
+      properties.author.type = createNamedSchemata(subSchemaProperties)
+      const schema = createNamedSchemata(properties)
       schema.validate(schema.makeBlank(), (error, errors) => {
         expect(errors).toEqual({
           author: { age: 'sub-schema property validation' },
@@ -343,8 +345,8 @@ describe('#validate()', () => {
     subSchemaProperties.comment.validators = {
       all: [ validity.required ]
     }
-    properties.comments.type = schemata.Array(schemata(subSchemaProperties))
-    const schema = schemata(properties)
+    properties.comments.type = schemata.Array(createNamedSchemata(subSchemaProperties))
+    const schema = createNamedSchemata(properties)
     const model = schema.makeBlank()
     model.comments.push({ email: null, comment: null })
     model.comments.push({ email: null, comment: 'comment' })
@@ -412,8 +414,8 @@ describe('#validate()', () => {
     subSchema.email.validators = {
       all: [ validity.required ]
     }
-    properties.comments.type = schemata.Array(schemata(subSchema))
-    const schema = schemata(properties)
+    properties.comments.type = schemata.Array(createNamedSchemata(subSchema))
+    const schema = createNamedSchemata(properties)
     const model = schema.makeBlank()
     async.forEach(testValues, (value, next) => {
       model.comments = value
@@ -435,8 +437,8 @@ describe('#validate()', () => {
       subSchema.email.validators = {
         all: [ validity.required ]
       }
-      properties.comments.type = schemata.Array(schemata(subSchema))
-      const schema = schemata(properties)
+      properties.comments.type = schemata.Array(createNamedSchemata(subSchema))
+      const schema = createNamedSchemata(properties)
       const model = schema.makeBlank()
       async.forEach(testValues, (value, next) => {
         model.comments = value
@@ -469,7 +471,7 @@ describe('#validate()', () => {
     properties.name.validators = {
       all: [ (key, errorProperty, object, callback) => callback(null, object[key] ? undefined : `${errorProperty} is required`) ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ name: '' }), (ignoreError, errors) => {
       expect(errors).toEqual({ name: 'Full Name is required' })
       done()
@@ -499,8 +501,8 @@ describe('#validate()', () => {
           return callback(null, object[key] ? undefined : `${errorProperty} is required`)
         } ]
       }
-      properties.author.type = schemata(subSchema)
-      const schema = schemata(properties)
+      properties.author.type = createNamedSchemata(subSchema)
+      const schema = createNamedSchemata(properties)
       schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
         expect(schemaParent).toEqual(fixtures.blog)
         done()
@@ -519,7 +521,7 @@ describe('#validate()', () => {
           return callback(null, object[key] ? undefined : `${errorProperty} is required`)
         } ]
       }
-      const schema = schemata(properties)
+      const schema = createNamedSchemata(properties)
       schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
         expect(schemaParent).toEqual(fixtures.blog)
         done()
@@ -540,7 +542,7 @@ describe('#validate()', () => {
         return callback(null, object[key] ? undefined : `${errorProperty} is required`)
       } ]
     }
-    const schema = schemata(properties)
+    const schema = createNamedSchemata(properties)
     async.eachSeries(expectedParents, (model, next) => {
       schema.validate(schema.makeDefault(model), () => {
         expectedParent = expectedParents[schemaParents.length - 1]

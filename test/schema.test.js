@@ -1,8 +1,22 @@
-const schemata = require('../')
+const schemata = require('..')
 
 describe('#schema', () => {
+  test('should throw if name is missing', () => {
+    expect(() => {
+      schemata()
+    }).toThrowError(/name is required/)
+  })
+
+  test('should not throw if properties are missing', () => {
+    try {
+      schemata({ name: 'Person' })
+    } catch (e) {
+      throw new Error('Empty properities shoudl not error')
+    }
+  })
+
   test('should default to an empty schemata', () => {
-    const empty = schemata()
+    const empty = schemata({ name: 'Person' })
     expect(empty.getProperties()).toEqual({})
   })
 
@@ -24,12 +38,12 @@ describe('#schema', () => {
             { a: { defaultValue: 20 } }
           ]
 
-      badSchemas.forEach(s => {
-        expect(() => { schemata(s) }).toThrowError()
+      badSchemas.forEach(properties => {
+        expect(() => { schemata({ name: 'Bad', properties }) }).toThrowError()
       })
 
-      goodSchemas.forEach(s => {
-        expect(() => { schemata(s) }).not.toThrowError()
+      goodSchemas.forEach(properties => {
+        expect(() => { schemata({ name: 'Good', properties }) }).not.toThrowError()
       })
     }
   )
