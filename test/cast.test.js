@@ -10,15 +10,6 @@ const assertions = castFixtures.assertions
 const typeMap = castFixtures.typeMap
 const validity = require('validity')
 
-function createArraySchema () {
-  const schema = createNamedSchemata({
-    images: {
-      type: Array
-    }
-  })
-  return schema
-}
-
 describe('#cast()', () => {
   test('converts types correctly', () => {
     Object.keys(assertions).forEach(type => {
