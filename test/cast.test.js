@@ -4,6 +4,7 @@ const {
   createBlogSchema,
   createNamedSchemata
 } = require('./helpers')
+const { castProperty } = require('..')
 const castFixtures = require('./cast-fixtures')
 const assertions = castFixtures.assertions
 const typeMap = castFixtures.typeMap
@@ -20,44 +21,40 @@ function createArraySchema () {
 
 describe('#cast()', () => {
   test('converts types correctly', () => {
-    const schema = createContactSchema()
     Object.keys(assertions).forEach(type => {
       // Even = expected, odd = supplied
       for (let i = 0; i < assertions[type].length; i += 2) {
         let cast
-        cast = schema.castProperty(typeMap[type], assertions[type][i + 1])
+        cast = castProperty(typeMap[type], assertions[type][i + 1])
         expect(cast).toEqual(assertions[type][i])
       }
     })
   })
 
   test('converts arrays correctly', () => {
-    const schema = createArraySchema();
     [ [], null, '' ].forEach(value => {
-      expect(Array.isArray(schema.castProperty(Array, value))).toBe(true)
-      expect(schema.castProperty(Array, value)).toHaveLength(0)
+      expect(Array.isArray(castProperty(Array, value))).toBe(true)
+      expect(castProperty(Array, value)).toHaveLength(0)
     });
     [ [ 1 ], [ 'a' ] ].forEach(value => {
-      expect(Array.isArray(schema.castProperty(Array, value))).toBe(true)
-      expect(schema.castProperty(Array, value)).toHaveLength(1)
+      expect(Array.isArray(castProperty(Array, value))).toBe(true)
+      expect(castProperty(Array, value)).toHaveLength(1)
     })
   })
 
   test('converts object correctly', () => {
-    const schema = createArraySchema();
     [ '', 'hello', [], undefined ].forEach(value => {
-      expect(Object.keys(schema.castProperty(Object, value))).toHaveLength(0)
+      expect(Object.keys(castProperty(Object, value))).toHaveLength(0)
     });
     [ { a: 'b' } ].forEach(value => {
-      expect(Object.keys(schema.castProperty(Object, value))).toHaveLength(1)
+      expect(Object.keys(castProperty(Object, value))).toHaveLength(1)
     })
-    expect(true).toBe(schema.castProperty(Object, null) === null)
+    expect(true).toBe(castProperty(Object, null) === null)
   })
 
   test('throws exception on unknown type', () => {
-    const schema = createContactSchema()
     expect(() => {
-      schema.castProperty(undefined)
+      castProperty(undefined)
     }).toThrowError(/Missing type/)
   })
 

@@ -14,6 +14,56 @@ const stringUtils = require('piton-string-utils')
 const isPrimitive = require('is-primitive')
 const clone = require('lodash.clonedeep')
 
+/**
+ * Casts a value to a given type.
+ *
+ * For booleans and integers; undefined, '', and null will all be cast to null
+ * For array they will be converted to []
+ * For object they will be converted to {}
+ *
+ * Throws error if type is undefined.
+ *
+ */
+const castProperty = (type, value, key, entityObject) => {
+  if (type === undefined) throw new Error('Missing type')
+
+  // First check whether the type of this property is
+  // a sub-schema, or an array of sub-schemas
+
+  const subSchema = getType(type, entityObject)
+  if (isSchemata(subSchema)) {
+    return value !== null ? subSchema.cast(value) : null
+  }
+
+  if (isSchemataArray(type)) {
+    if (!value) return null
+    if (!Array.isArray(value)) value = [ value ]
+    return value.map(v => type.arraySchema.cast(v))
+  }
+
+  // If the { type: x } is a primitive constructor, use
+  // cast the value based on which constructor is found
+
+  // JSHint doesn't like switch statements!
+  /* jshint maxcomplexity: 13 */
+  switch (type) {
+    case Boolean:
+      return castBoolean(value)
+    case Number:
+      return castNumber(value)
+    case String:
+      return castString(value)
+    case Object:
+      return castObject(value)
+    case Date:
+      return castDate(value)
+    case Array:
+      return castArray(value)
+    default:
+      return value
+  }
+}
+
 const createSchemata = ({ name, description, properties } = {}) => {
   if (name === undefined) throw new Error('name is required')
   const internalSchema = clone(properties || {})
@@ -188,56 +238,6 @@ const createSchemata = ({ name, description, properties } = {}) => {
       return newEntity
     },
 
-    /**
-     * Casts a value to a given type.
-     *
-     * For booleans and integers; undefined, '', and null will all be cast to null
-     * For array they will be converted to []
-     * For object they will be converted to {}
-     *
-     * Throws error if type is undefined.
-     *
-     */
-    castProperty (type, value, key, entityObject) {
-      if (type === undefined) throw new Error('Missing type')
-
-      // First check whether the type of this property is
-      // a sub-schema, or an array of sub-schemas
-
-      const subSchema = getType(type, entityObject)
-      if (isSchemata(subSchema)) {
-        return value !== null ? subSchema.cast(value) : null
-      }
-
-      if (isSchemataArray(type)) {
-        if (!value) return null
-        if (!Array.isArray(value)) value = [ value ]
-        return value.map(v => type.arraySchema.cast(v))
-      }
-
-      // If the { type: x } is a primitive constructor, use
-      // cast the value based on which constructor is found
-
-      // JSHint doesn't like switch statements!
-      /* jshint maxcomplexity: 13 */
-      switch (type) {
-        case Boolean:
-          return castBoolean(value)
-        case Number:
-          return castNumber(value)
-        case String:
-          return castString(value)
-        case Object:
-          return castObject(value)
-        case Date:
-          return castDate(value)
-        case Array:
-          return castArray(value)
-        default:
-          return value
-      }
-    },
-
     /*
     * Casts all the properties in the given entityObject that are defined in the schema.
     * If tag is provided then only properties that are in the schema and have the given tag will be cast.
@@ -251,7 +251,7 @@ const createSchemata = ({ name, description, properties } = {}) => {
 
         // Only cast properties in the schema and tagged, if tag is provided
         if (internalSchema[key] !== undefined && internalSchema[key].type && hasTag(internalSchema, key, tag)) {
-          newEntity[key] = this.castProperty(internalSchema[key].type, entityObject[key], key, entityObject)
+          newEntity[key] = castProperty(internalSchema[key].type, entityObject[key], key, entityObject)
         }
       })
 
@@ -448,5 +448,5 @@ function validateArgumentStrategies () {
   }
 }
 createSchemata.Array = SchemataArray
-
+createSchemata.castProperty = castProperty
 module.exports = createSchemata
