@@ -14,6 +14,10 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v6.0.0
+
+Moves `castProperty` to a static function.
+
 ### v5.0.0
 
 The main initialization arguments have now changed so you must provide a `name`
