@@ -68,5 +68,11 @@
   "engines": {
     "node": ">= 6"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ]
+  }
 }

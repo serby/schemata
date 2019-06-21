@@ -1,4 +1,4 @@
-const schemata = require('..')
+const schemata = require('../schemata')
 
 describe('#schema', () => {
   test('should throw if name is missing', () => {
@@ -11,7 +11,7 @@ describe('#schema', () => {
     try {
       schemata({ name: 'Person' })
     } catch (e) {
-      throw new Error('Empty properities shoudl not error')
+      throw new Error('Empty properties should not error')
     }
   })
 
@@ -20,31 +20,48 @@ describe('#schema', () => {
     expect(empty.getProperties()).toEqual({})
   })
 
-  test(
-    'should throw an error if a defaultValue is neither a primitive value or a function',
-    () => {
-      const badSchemas =
-            [ { a: { defaultValue: [] } },
-              { a: { defaultValue: {} } },
-              { a: { defaultValue: new Date() } },
-              { a: { defaultValue: 1 }, b: { defaultValue: [] } }
-            ]
+  test('should get schema name', () => {
+    const schema = schemata({ name: 'Person', description: 'A real person' })
+    expect(schema.getName()).toEqual('Person')
+  })
 
-      const goodSchemas =
-          [ { a: { defaultValue () { return [] } } },
-            { a: { defaultValue: null } },
-            { a: { defaultValue: undefined } },
-            { a: { defaultValue: 'Hi' } },
-            { a: { defaultValue: 20 } }
-          ]
+  test('should get schema description', () => {
+    const schema = schemata({ name: 'Person', description: 'A real person' })
+    expect(schema.getDescription()).toEqual('A real person')
+  })
 
-      badSchemas.forEach(properties => {
-        expect(() => { schemata({ name: 'Bad', properties }) }).toThrowError()
-      })
+  test('should throw an error if a defaultValue is neither a primitive value or a function', () => {
+    const badSchemas = [
+      { a: { defaultValue: [] } },
+      { a: { defaultValue: {} } },
+      { a: { defaultValue: new Date() } },
+      { a: { defaultValue: 1 }, b: { defaultValue: [] } }
+    ]
 
-      goodSchemas.forEach(properties => {
-        expect(() => { schemata({ name: 'Good', properties }) }).not.toThrowError()
-      })
-    }
-  )
+    const goodSchemas = [
+      {
+        a: {
+          defaultValue() {
+            return []
+          }
+        }
+      },
+      { a: { defaultValue: null } },
+      { a: { defaultValue: undefined } },
+      { a: { defaultValue: 'Hi' } },
+      { a: { defaultValue: 20 } }
+    ]
+
+    badSchemas.forEach(properties => {
+      expect(() => {
+        schemata({ name: 'Bad', properties })
+      }).toThrowError()
+    })
+
+    goodSchemas.forEach(properties => {
+      expect(() => {
+        schemata({ name: 'Good', properties })
+      }).not.toThrowError()
+    })
+  })
 })

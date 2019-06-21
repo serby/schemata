@@ -1,5 +1,5 @@
 const assert = require('assert')
-const schemata = require('../')
+const schemata = require('../schemata')
 const {
   createContactSchema,
   createBlogSchema,
@@ -14,7 +14,8 @@ describe('#makeDefault()', () => {
 
   test('returns correct object', () => {
     const schema = createContactSchema()
-    expect(schema.makeDefault()).toEqual({ name: null,
+    expect(schema.makeDefault()).toEqual({
+      name: null,
       age: 0,
       active: true,
       phoneNumber: null,
@@ -24,7 +25,8 @@ describe('#makeDefault()', () => {
 
   test('extends given object correctly', () => {
     const schema = createContactSchema()
-    expect(schema.makeDefault({ name: 'Paul' })).toEqual({ name: 'Paul',
+    expect(schema.makeDefault({ name: 'Paul' })).toEqual({
+      name: 'Paul',
       age: 0,
       active: true,
       phoneNumber: null,
@@ -34,7 +36,10 @@ describe('#makeDefault()', () => {
 
   test('strips out properties not in the schema', () => {
     const schema = createContactSchema()
-    expect(schema.makeDefault({ name: 'Paul', extra: 'This should not be here' })).toEqual({ name: 'Paul',
+    expect(
+      schema.makeDefault({ name: 'Paul', extra: 'This should not be here' })
+    ).toEqual({
+      name: 'Paul',
       age: 0,
       active: true,
       phoneNumber: null,
@@ -44,34 +49,58 @@ describe('#makeDefault()', () => {
 
   test('creates defaults for sub-schema', () => {
     const schema = createBlogSchema()
-    expect(schema.makeDefault()).toEqual({ title: null,
+    expect(schema.makeDefault()).toEqual({
+      title: null,
       body: null,
-      author: { name: null, age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+      author: {
+        name: null,
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
+      },
       comments: []
     })
   })
 
   test('extends given object correctly for sub-schemas', () => {
     const schema = createBlogSchema()
-    expect(schema.makeDefault(
-      { title: 'Mr. Blogger’s Post',
+    expect(
+      schema.makeDefault({
+        title: 'Mr. Blogger’s Post',
         author: { name: 'Mr. Blogger' }
-      })).toEqual({ title: 'Mr. Blogger’s Post',
+      })
+    ).toEqual({
+      title: 'Mr. Blogger’s Post',
       body: null,
-      author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+      author: {
+        name: 'Mr. Blogger',
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
+      },
       comments: []
     })
   })
 
   test('allows sub-schemas properties to set a default value', () => {
     const properties = createBlogSchema().getProperties()
-    properties.author.defaultValue = () => properties.author.type.makeDefault({
-      name: 'Mr. Mista',
-      active: false
-    })
-    expect(createNamedSchemata(properties).makeDefault()).toEqual({ title: null,
+    properties.author.defaultValue = () =>
+      properties.author.type.makeDefault({
+        name: 'Mr. Mista',
+        active: false
+      })
+    expect(createNamedSchemata(properties).makeDefault()).toEqual({
+      title: null,
       body: null,
-      author: { name: 'Mr. Mista', age: 0, active: false, phoneNumber: null, dateOfBirth: null },
+      author: {
+        name: 'Mr. Mista',
+        age: 0,
+        active: false,
+        phoneNumber: null,
+        dateOfBirth: null
+      },
       comments: []
     })
   })
@@ -102,10 +131,7 @@ describe('#makeDefault()', () => {
   test('makes default on sub-schema objects if type is a function', () => {
     const schema = createBlogSchema()
 
-    const obj =
-      { title: 'Mr. Blogger’s Post',
-        author: { name: 'Mr. Blogger' }
-      }
+    const obj = { title: 'Mr. Blogger’s Post', author: { name: 'Mr. Blogger' } }
 
     let called = false
 
@@ -114,13 +140,20 @@ describe('#makeDefault()', () => {
     schema.getProperties().author.type = model => {
       if (called === false) return createContactSchema()
       called = true
-      assert.deepEqual(model, obj)
+      assert.deepStrictEqual(model, obj)
       return createContactSchema()
     }
 
-    expect(schema.makeDefault(obj)).toEqual({ title: 'Mr. Blogger’s Post',
+    expect(schema.makeDefault(obj)).toEqual({
+      title: 'Mr. Blogger’s Post',
       body: null,
-      author: { name: 'Mr. Blogger', age: 0, active: true, phoneNumber: null, dateOfBirth: null },
+      author: {
+        name: 'Mr. Blogger',
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
+      },
       comments: []
     })
   })

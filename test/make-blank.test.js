@@ -1,4 +1,4 @@
-const schemata = require('../')
+const schemata = require('../schemata')
 const helpers = require('./helpers')
 const createContactSchema = helpers.createContactSchema
 const createBlogSchema = helpers.createBlogSchema
@@ -6,7 +6,8 @@ const createBlogSchema = helpers.createBlogSchema
 describe('#makeBlank()', () => {
   test('returns correct empty object with no parameters', () => {
     const schema = createContactSchema()
-    expect(schema.makeBlank()).toEqual({ name: null,
+    expect(schema.makeBlank()).toEqual({
+      name: null,
       age: null,
       active: null,
       phoneNumber: null,

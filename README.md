@@ -1,4 +1,4 @@
-# schemata - Define, create, and validate your objects, based on a specified schema.
+# schemata - Define, create, and validate your objects, from a simple schema.
 
 [![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
 
@@ -14,6 +14,41 @@ the module within your application whether you are storing your objects or not.
 
 ## Changelog
 
+### v7.0.0
+
+This should be compatible with v6 but has some major rewrites, hence the version bump.
+
+You can now validate using regular functions, promises and the old style callback.
+
+```js
+const databaseLookup = async () => null
+
+// Regular function
+const isOfWizardingAge = (propertyName, name, entity) =>
+  entity[propertyName] < 17 && 'Sorry you are not of age'
+
+// Promise
+const isUniqueAge = async (propertyName, name, entity) => {
+  const found = await databaseLookup({ age: entity[propertyName] })
+  if (found) return `${entity[propertyName]} already exists`
+}
+
+const properties = createContactSchema().getProperties()
+properties.age.validators = [
+  isOfWizardingAge,
+  isUniqueAge,
+  (propertyName, name, object, cb) =>
+    cb(null, `${propertyName} ${name} ${object[propertyName]}`)
+]
+const schema = createNamedSchemata(properties)
+const errors = await schema.validate(
+  schema.makeDefault({ name: 'Paul', age: 16 })
+)
+console.error(errors)
+```
+
+This version is the first to be transpiled using babel and with `async.js` removed.
+
 ### v6.0.0
 
 Moves `castProperty` to a static function.
@@ -26,7 +61,7 @@ and can also provide a `description`. The schema definition is now set via the
 
 ### v4.1.0
 
-Validators now return a promise if a callback is not provided.
+Validate now return a promise if a callback is not provided.
 
 ### v4.0.0
 
@@ -35,11 +70,11 @@ release before v5 which will have major breaking changes.
 
 ### v3.2.0
 
-* Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.
+- Introduces shorthand for `schema.validators.all = []`. Now `schema.validators = []` is equivalent.
 
 ### v3.1.0
 
-* Fixed a bug where `stripUnknownProperties()` was not stripping out properties of type array that were null.
+- Fixed a bug where `stripUnknownProperties()` was not stripping out properties of type array that were null.
 
 ### v3.0.0
 
@@ -86,17 +121,18 @@ const contactSchema = schemata({
 
 #### Schema Properties
 
-* **name**: (optional) The friendly version of the property name. If omitted a decamlcased version of the property name will be used.
-* **type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
-* **defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
-* **tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
-* **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways. Since 3.1, if you only want one set of validators you can set `.validators = [ validatorA, validatorB ]` as a shorthand. Since 4.0.0 you can also omit the callback and provide a promise.
+- **name**: (optional) The friendly version of the property name. If omitted a decamlcased version of the property name will be used.
+- **type**: (optional) The javascript type that the property value will be coerced into via the **cast()** and **castProperty()** functions. If this is omitted the property will be of type String. Type can be any of the following: String, Number, Boolean, Array, Object, Date or another instance of a schemata schema.
+- **defaultValue**: (optional) The property value return when using **makeDefault()** If this is a function, it will be the return value.
+- **tag[]**: (optional) Some functions such as **cast()** and **stripUnknownProperties()** take a tag option. If this is passed then only properties with that tag are processed.
+- **validators{}**: (optional) A object containing all the validator set for this property. By default the validator set 'all' will be used by **validate()**. schemata gives you the ability defined any number of validator sets, so you can validate an object in different ways. Since 3.1, if you only want one set of validators you can set `.validators = [ validatorA, validatorB ]` as a shorthand. Since 4.0.0 you can also omit the callback and provide a promise.
 
 ### Creating a new object
 
 ```js
 const blank = contactSchema.makeBlank()
 ```
+
     {
       name: null,
       age: null,
@@ -109,12 +145,14 @@ const blank = contactSchema.makeBlank()
 ```js
 const default = contactSchema.makeDefault()
 ```
+
     {
       name: null,
       age: 0,
       active: true,
       phoneNumber: null
     }
+
 ### Strip unknown properties from an object
 
 Sometimes you've receive data from a POST or another IO operation that may have
@@ -128,6 +166,7 @@ var stripped = contactSchema.stripUnknownProperties({
   extra: 'This should not be here'
 })
 ```
+
     {
       name: 'Dom'
     }
@@ -219,6 +258,7 @@ const objectToCast = {
 
 var casted = person.cast(objectToCast)
 ```
+
     {
         name: '123456',
         age: 83,
@@ -260,9 +300,11 @@ console.log(address.propertyName('addressLine3'))
 ```
 
 ## Credits
+
 [Paul Serby](https://github.com/serby/) follow me on twitter [@serby](http://twitter.com/serby)
 
 [Dom Harrington](https://github.com/domharrington/)
 
 ## Licence
+
 ISC

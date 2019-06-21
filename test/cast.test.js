@@ -4,11 +4,11 @@ const {
   createBlogSchema,
   createNamedSchemata
 } = require('./helpers')
-const { castProperty } = require('..')
+const { castProperty } = require('../schemata')
 const castFixtures = require('./cast-fixtures')
 const assertions = castFixtures.assertions
 const typeMap = castFixtures.typeMap
-const validity = require('validity')
+const required = require('validity-required')
 
 describe('#cast()', () => {
   test('converts types correctly', () => {
@@ -23,21 +23,21 @@ describe('#cast()', () => {
   })
 
   test('converts arrays correctly', () => {
-    [ [], null, '' ].forEach(value => {
+    ;[[], null, ''].forEach(value => {
       expect(Array.isArray(castProperty(Array, value))).toBe(true)
       expect(castProperty(Array, value)).toHaveLength(0)
-    });
-    [ [ 1 ], [ 'a' ] ].forEach(value => {
+    })
+    ;[[1], ['a']].forEach(value => {
       expect(Array.isArray(castProperty(Array, value))).toBe(true)
       expect(castProperty(Array, value)).toHaveLength(1)
     })
   })
 
   test('converts object correctly', () => {
-    [ '', 'hello', [], undefined ].forEach(value => {
+    ;['', 'hello', [], undefined].forEach(value => {
       expect(Object.keys(castProperty(Object, value))).toHaveLength(0)
-    });
-    [ { a: 'b' } ].forEach(value => {
+    })
+    ;[{ a: 'b' }].forEach(value => {
       expect(Object.keys(castProperty(Object, value))).toHaveLength(1)
     })
     expect(true).toBe(castProperty(Object, null) === null)
@@ -83,11 +83,11 @@ describe('#cast()', () => {
   test('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
-    const obj = schema.cast(
-      { title: 'My Blog',
-        author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() },
-        comments: []
-      })
+    const obj = schema.cast({
+      title: 'My Blog',
+      author: { name: 'Paul', dateOfBirth: new Date().toISOString() },
+      comments: []
+    })
 
     expect(obj.author.dateOfBirth).toBeInstanceOf(Date)
   })
@@ -95,14 +95,14 @@ describe('#cast()', () => {
   test('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
-    const initialObj =
-      { title: 'My Blog',
-        author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() },
-        comments: []
-      }
+    const initialObj = {
+      title: 'My Blog',
+      author: { name: 'Paul', dateOfBirth: new Date().toISOString() },
+      comments: []
+    }
 
     schema.getProperties().author.type = model => {
-      assert.deepEqual(model, initialObj)
+      assert.deepStrictEqual(model, initialObj)
       return createContactSchema()
     }
 
@@ -113,14 +113,10 @@ describe('#cast()', () => {
   test('casts properties that have null subschemas', () => {
     const schema = createBlogSchema()
 
-    const initialObj =
-      { title: 'My Blog',
-        author: null,
-        comments: []
-      }
+    const initialObj = { title: 'My Blog', author: null, comments: [] }
 
     schema.getProperties().author.type = model => {
-      assert.deepEqual(model, initialObj)
+      assert.deepStrictEqual(model, initialObj)
       return createContactSchema()
     }
 
@@ -131,38 +127,49 @@ describe('#cast()', () => {
   test('casts properties that are an array of subschemas', () => {
     const schema = createBlogSchema()
 
-    const obj = schema.cast(
-      { title: 'My Blog',
-        author: { name: 'Paul', dateOfBirth: (new Date()).toISOString() },
-        comments: [ { created: (new Date()).toISOString() } ]
-      })
+    const obj = schema.cast({
+      title: 'My Blog',
+      author: { name: 'Paul', dateOfBirth: new Date().toISOString() },
+      comments: [{ created: new Date().toISOString() }]
+    })
 
     expect(obj.comments[0].created).toBeInstanceOf(Date)
   })
 
   test('casts properties that have a conditional/function type', () => {
-    const vehicleSchema = createNamedSchemata(
-      { type: { type: String },
-        tyreWear: {
-          type (obj) {
-            // This function takes any configuration of tyres and
-            // just ensures that each of the values is a number
-            const schema = {}
-            if (!obj || !obj.tyreWear) return createNamedSchemata(schema)
-            Object.keys(obj.tyreWear).forEach(k => {
-              schema[k] = { type: Number, validators: { all: [ validity.required ] } }
-            })
-            return createNamedSchemata(schema)
-          }
+    const vehicleSchema = createNamedSchemata({
+      type: { type: String },
+      tyreWear: {
+        type(obj) {
+          // This function takes any configuration of tyres and
+          // just ensures that each of the values is a number
+          const schema = {}
+          if (!obj || !obj.tyreWear) return createNamedSchemata(schema)
+          Object.keys(obj.tyreWear).forEach(k => {
+            schema[k] = {
+              type: Number,
+              validators: { all: [required] }
+            }
+          })
+          return createNamedSchemata(schema)
         }
-      })
+      }
+    })
 
-    const bike = vehicleSchema.cast({ type: 'bike', tyreWear: { front: '0', back: '2' } })
+    const bike = vehicleSchema.cast({
+      type: 'bike',
+      tyreWear: { front: '0', back: '2' }
+    })
 
-    const car = vehicleSchema.cast(
-      { type: 'car',
-        tyreWear: { nearsideFront: '0', offsideFront: '2', nearsideBack: '3', offsideBack: '5' }
-      })
+    const car = vehicleSchema.cast({
+      type: 'car',
+      tyreWear: {
+        nearsideFront: '0',
+        offsideFront: '2',
+        nearsideBack: '3',
+        offsideBack: '5'
+      }
+    })
 
     assert.strictEqual(bike.tyreWear.front, 0)
     assert.strictEqual(bike.tyreWear.back, 2)

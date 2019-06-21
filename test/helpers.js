@@ -1,10 +1,11 @@
-const schemata = require('../')
+const schemata = require('../schemata')
 
 const createContactSchema = () => {
-  return schemata({ name: 'Contact',
+  return schemata({
+    name: 'Contact',
     properties: {
       name: {
-        tag: [ 'update' ],
+        tag: ['update'],
         name: 'Full Name'
       },
       age: {
@@ -16,7 +17,7 @@ const createContactSchema = () => {
         defaultValue: true
       },
       phoneNumber: {
-        tag: [ 'update' ]
+        tag: 'update'
       },
       dateOfBirth: {
         type: Date
@@ -26,31 +27,33 @@ const createContactSchema = () => {
 }
 
 const createBlogSchema = () => {
-  return schemata({ name: 'Blog',
+  return schemata({
+    name: 'Blog',
     properties: {
       title: {
-        tag: [ 'auto' ]
+        tag: ['auto']
       },
       body: {
-        tag: [ 'auto' ]
+        tag: ['auto']
       },
       author: {
         type: createContactSchema()
       },
       comments: {
         type: schemata.Array(createCommentSchema()),
-        tag: [ 'auto' ]
+        tag: ['auto']
       }
     }
   })
 }
 
 const createCommentSchema = () => {
-  return schemata({ name: 'Comment',
+  return schemata({
+    name: 'Comment',
     properties: {
       email: {},
       comment: {
-        tag: [ 'auto' ]
+        tag: ['auto']
       },
       created: {
         type: Date
