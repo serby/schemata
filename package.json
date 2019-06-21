@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on well defined schema.",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
     {
@@ -52,9 +52,7 @@
   "repository": "git://github.com/serby/schemata.git",
   "main": "./dist/schemata.js",
   "files": [
-    "./dist/schemata.js",
-    "./dist/lib/*",
-    "./dist/lib/casters/*"
+    "./dist"
   ],
   "scripts": {
     "lint:js": "eslint . --cache --ext '.js'",
