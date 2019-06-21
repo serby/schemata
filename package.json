@@ -1,7 +1,7 @@
 {
   "name": "schemata",
   "description": "Define, create, and validate your business objects, based on well defined schema.",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "author": "Paul Serby <paul@serby.net>",
   "contributors": [
     {
@@ -18,21 +18,31 @@
     }
   ],
   "dependencies": {
-    "async": "^2.6.0",
     "is-primitive": "^3.0.0",
-    "lodash.clonedeep": "^4.5.0",
-    "piton-string-utils": "^0.3.0"
+    "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
-    "eslint": "^4.13.0",
-    "eslint-config-standard": "^11.0.0-beta.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "istanbul": "^0.4.5",
-    "jest": "^21.2.1",
-    "validity": "^0.0.3"
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/runtime": "^7.4.5",
+    "async": "^2.6.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "core-js": "3",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-config-prettier-standard": "^2.0.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.8.0",
+    "prettier": "^1.17.1",
+    "validity": "^0.0.3",
+    "validity-required": "^1.0.0"
   },
   "keywords": [
     "entity",
@@ -40,12 +50,20 @@
     "data"
   ],
   "repository": "git://github.com/serby/schemata.git",
-  "main": "schemata",
+  "main": "./dist/schemata.js",
+  "files": [
+    "./dist/schemata.js",
+    "./dist/lib/*",
+    "./dist/lib/casters/*"
+  ],
   "scripts": {
-    "lint": "eslint --fix -f unix .",
-    "pretest": "yarn lint",
-    "test": "jest",
-    "prepublish": "yarn test"
+    "lint:js": "eslint . --cache --ext '.js'",
+    "prettier": "prettier --write '**/*.{js}'",
+    "test": "yarn test:code && yarn lint:js",
+    "test:code": "jest",
+    "test:coverage": "jest --coverage --watch",
+    "build": "rm -rf dist && mkdir dist && babel schemata.js -d dist && babel lib -d dist/lib",
+    "prepublish": "yarn test && yarn build"
   },
   "engines": {
     "node": ">= 6"
