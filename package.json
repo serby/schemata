@@ -66,7 +66,7 @@
     "prepublish": "yarn test && yarn build"
   },
   "engines": {
-    "node": ">= 6"
+    "node": ">= 8"
   },
   "license": "ISC",
   "jest": {
