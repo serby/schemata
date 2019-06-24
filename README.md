@@ -65,8 +65,7 @@ Validate now return a promise if a callback is not provided.
 
 ### v4.0.0
 
-Node 6+ upgrade. Functionally the same as v3.2.0. This is a stepping stone
-release before v5 which will have major breaking changes.
+Node 6+ upgrade. Direct access to the schema has been removed (`schema.schema`) and `getProperties()` must now be used.
 
 ### v3.2.0
 
