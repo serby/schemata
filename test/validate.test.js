@@ -7,8 +7,9 @@ const {
   createCommentSchema,
   createNamedSchemata
 } = require('./helpers')
-const validity = require('validity')
-const propertyValidator = require('validity/property-validator')
+const { createValidatorAllowingFailureMessageOverride } = require('validity')
+const required = require('validity-required')
+const length = require('validity-length')
 const fixtures = require('./validate-fixtures')
 
 function createBlogSchemaWithSubschemaNotInitialised() {
@@ -30,7 +31,7 @@ function createKidSchema() {
 function createToySchema() {
   return createNamedSchemata({
     name: { type: String },
-    label: { type: String, validators: [validity.required] }
+    label: { type: String, validators: [required] }
   })
 }
 
@@ -42,9 +43,9 @@ function createAsyncValidationSubschema() {
   return createNamedSchemata({
     id: {
       type: String,
-      validators: { all: [validity.required, asyncValidator] }
+      validators: { all: [required, asyncValidator] }
     },
-    quantity: { type: String, validators: { all: [validity.required] } }
+    quantity: { type: String, validators: { all: [required] } }
   })
 }
 
@@ -52,7 +53,7 @@ function createSchemaWithAsyncSubschema() {
   return createNamedSchemata({
     items: {
       type: schemata.Array(createAsyncValidationSubschema),
-      validators: { all: [validity.required] }
+      validators: { all: [required] }
     }
   })
 }
@@ -83,7 +84,7 @@ describe('#validate()', () => {
   test('returns promise with errors', async done => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
-    properties.name.validators = [validity.required]
+    properties.name.validators = [required]
     const schema = createNamedSchemata(properties)
     const errors = await schema.validate(schema.makeDefault({}), 'all')
     expect(errors).toEqual({ name: 'Full Name is required' })
@@ -94,7 +95,7 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
     const schema = createNamedSchemata(properties)
     schema.validate(
@@ -111,7 +112,7 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
     const schema = createNamedSchemata(properties)
 
@@ -129,11 +130,11 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
     expect(properties.name).not.toHaveProperty('validators')
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     properties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     const schema = createNamedSchemata(properties)
@@ -152,7 +153,7 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
-      all: [validity.required, validity.length(2, 4)]
+      all: [required, length(2, 4)]
     }
     const schema = createNamedSchemata(properties)
     schema.validate(
@@ -172,12 +173,12 @@ describe('#validate()', () => {
 
     // Adding required validation to a schema property with a tag
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     // Adding required validation to a schema property without a tag
     properties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     const schema = createNamedSchemata(properties)
@@ -198,13 +199,13 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     properties.name.tag = ['newTag']
 
     properties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     properties.age.tag = ['differentTag']
@@ -227,11 +228,11 @@ describe('#validate()', () => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     properties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
@@ -247,7 +248,7 @@ describe('#validate()', () => {
     const properties = createBlogSchema().getProperties()
     const subschemaProperties = properties.author.type.getProperties()
     subschemaProperties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
     properties.author.type = createNamedSchemata(subschemaProperties)
     const schema = createNamedSchemata(properties)
@@ -266,7 +267,7 @@ describe('#validate()', () => {
     const object = { author: 1 }
 
     subschemaProperties.age.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     properties.author.type = createNamedSchemata(subschemaProperties)
@@ -289,9 +290,12 @@ describe('#validate()', () => {
     const properties = createBlogSchema().getProperties()
     properties.author.validators = {
       all: [
-        propertyValidator((key, object, callback) => {
-          callback(null)
-        }, 'Bad')
+        createValidatorAllowingFailureMessageOverride(
+          (key, object, callback) => {
+            callback(null)
+          },
+          'Bad'
+        )
       ]
     }
     const schema = createNamedSchemata(properties)
@@ -304,17 +308,23 @@ describe('#validate()', () => {
     const properties = createBlogSchema().getProperties()
     properties.author.type.getProperties().age.validators = {
       all: [
-        propertyValidator((key, object, callback) => {
-          expect('This should not get called').toBe(false)
-          callback(null)
-        }, 'sub-schema property validation (This should not be seen)')
+        createValidatorAllowingFailureMessageOverride(
+          (key, object, callback) => {
+            expect('This should not get called').toBe(false)
+            callback(null)
+          },
+          'sub-schema property validation (This should not be seen)'
+        )
       ]
     }
     properties.author.validators = {
       all: [
-        propertyValidator((key, object, callback) => {
-          callback(null)
-        }, 'First level property validation')
+        createValidatorAllowingFailureMessageOverride(
+          (key, object, callback) => {
+            callback(null)
+          },
+          'First level property validation'
+        )
       ]
     }
     const schema = createNamedSchemata(properties)
@@ -329,22 +339,28 @@ describe('#validate()', () => {
     const properties = createBlogSchema().getProperties()
     properties.title.validators = {
       all: [
-        propertyValidator((key, object, callback) => {
-          callback(null)
-        }, 'First level property validation failure')
+        createValidatorAllowingFailureMessageOverride(
+          (key, object, callback) => {
+            callback(null)
+          },
+          'First level property validation failure'
+        )
       ]
     }
 
     properties.author.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     const subschemaProperties = properties.author.type.getProperties()
     subschemaProperties.age.validators = {
       all: [
-        propertyValidator((key, object, callback) => {
-          callback(null)
-        }, 'sub-schema property validation')
+        createValidatorAllowingFailureMessageOverride(
+          (key, object, callback) => {
+            callback(null)
+          },
+          'sub-schema property validation'
+        )
       ]
     }
     properties.author.type = createNamedSchemata(subschemaProperties)
@@ -363,11 +379,11 @@ describe('#validate()', () => {
     const subschemaProperties = properties.comments.type.arraySchema.getProperties()
 
     subschemaProperties.email.validators = {
-      all: [validity.required]
+      all: [required]
     }
 
     subschemaProperties.comment.validators = {
-      all: [validity.required]
+      all: [required]
     }
     properties.comments.type = schemata.Array(
       createNamedSchemata(subschemaProperties)
@@ -432,7 +448,7 @@ describe('#validate()', () => {
     const subschema = properties.comments.type.arraySchema.getProperties()
 
     subschema.email.validators = {
-      all: [validity.required]
+      all: [required]
     }
     properties.comments.type = schemata.Array(createNamedSchemata(subschema))
     const schema = createNamedSchemata(properties)
@@ -457,7 +473,7 @@ describe('#validate()', () => {
     const subschema = properties.comments.type.arraySchema.getProperties()
 
     subschema.email.validators = {
-      all: [validity.required]
+      all: [required]
     }
     properties.comments.type = schemata.Array(createNamedSchemata(subschema))
     const schema = createNamedSchemata(properties)
