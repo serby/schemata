@@ -2,9 +2,11 @@
 
 [![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
 
-[![build status](https://api.travis-ci.org/serby/schemata.svg?branch=master)](http://travis-ci.org/serby/schemata)
-
-[![NSP Status](https://nodesecurity.io/orgs/clock-limited/projects/0ba2886a-7c59-44f8-a893-7f272ba6ef63/badge)](https://nodesecurity.io/orgs/clock-limited/projects/0ba2886a-7c59-44f8-a893-7f272ba6ef63)
+[![Build Status](https://api.travis-ci.org/serby/schemata.svg?branch=master)](http://travis-ci.org/serby/schemata)
+[![Coverage Status](https://img.shields.io/coveralls/serby/schemata/master.svg?style=flat)](https://coveralls.io/r/serby/schemata?branch=master)
+[![Dependency Status](https://img.shields.io/david/serby/schemata.svg)](https://david-dm.org/serby/schemata)
+[![NPM version](https://img.shields.io/npm/v/throat.svg)](https://www.npmjs.com/package/throat)
+[![Greenkeeper badge](https://badges.greenkeeper.io/serby/schemata.svg)](https://greenkeeper.io/)
 
 schemata allows you to define schemas to ensure your objects are well formed.
 This is similar to the concept of a schema in [mongoose](http://mongoosejs.com/)
