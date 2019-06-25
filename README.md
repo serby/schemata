@@ -1,4 +1,4 @@
-# schemata - Define, create, and validate your objects, from a simple schema.
+# schemata - Define, create, and validate objects from a simple schema.
 
 [![NPM Details](https://nodei.co/npm/schemata.png?stars&downloads)](https://npmjs.org/package/schemata)
 
