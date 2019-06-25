@@ -7,14 +7,14 @@ const {
 } = require('./helpers')
 
 describe('#makeDefault()', () => {
-  test('without a customer schema creates a empty object', () => {
+  it('without a customer schema creates a empty object', () => {
     const schema = schemata({ name: 'Person' })
-    expect(schema.makeDefault()).toEqual({})
+    assert.deepStrictEqual(schema.makeDefault(), {})
   })
 
-  test('returns correct object', () => {
+  it('returns correct object', () => {
     const schema = createContactSchema()
-    expect(schema.makeDefault()).toEqual({
+    assert.deepStrictEqual(schema.makeDefault(), {
       name: null,
       age: 0,
       active: true,
@@ -23,9 +23,9 @@ describe('#makeDefault()', () => {
     })
   })
 
-  test('extends given object correctly', () => {
+  it('extends given object correctly', () => {
     const schema = createContactSchema()
-    expect(schema.makeDefault({ name: 'Paul' })).toEqual({
+    assert.deepStrictEqual(schema.makeDefault({ name: 'Paul' }), {
       name: 'Paul',
       age: 0,
       active: true,
@@ -34,22 +34,23 @@ describe('#makeDefault()', () => {
     })
   })
 
-  test('strips out properties not in the schema', () => {
+  it('strips out properties not in the schema', () => {
     const schema = createContactSchema()
-    expect(
-      schema.makeDefault({ name: 'Paul', extra: 'This should not be here' })
-    ).toEqual({
-      name: 'Paul',
-      age: 0,
-      active: true,
-      phoneNumber: null,
-      dateOfBirth: null
-    })
+    assert.deepStrictEqual(
+      schema.makeDefault({ name: 'Paul', extra: 'This should not be here' }),
+      {
+        name: 'Paul',
+        age: 0,
+        active: true,
+        phoneNumber: null,
+        dateOfBirth: null
+      }
+    )
   })
 
-  test('creates defaults for sub-schema', () => {
+  it('creates defaults for sub-schema', () => {
     const schema = createBlogSchema()
-    expect(schema.makeDefault()).toEqual({
+    assert.deepStrictEqual(schema.makeDefault(), {
       title: null,
       body: null,
       author: {
@@ -63,35 +64,36 @@ describe('#makeDefault()', () => {
     })
   })
 
-  test('extends given object correctly for sub-schemas', () => {
+  it('extends given object correctly for sub-schemas', () => {
     const schema = createBlogSchema()
-    expect(
+    assert.deepStrictEqual(
       schema.makeDefault({
         title: 'Mr. Blogger’s Post',
         author: { name: 'Mr. Blogger' }
-      })
-    ).toEqual({
-      title: 'Mr. Blogger’s Post',
-      body: null,
-      author: {
-        name: 'Mr. Blogger',
-        age: 0,
-        active: true,
-        phoneNumber: null,
-        dateOfBirth: null
-      },
-      comments: []
-    })
+      }),
+      {
+        title: 'Mr. Blogger’s Post',
+        body: null,
+        author: {
+          name: 'Mr. Blogger',
+          age: 0,
+          active: true,
+          phoneNumber: null,
+          dateOfBirth: null
+        },
+        comments: []
+      }
+    )
   })
 
-  test('allows sub-schemas properties to set a default value', () => {
+  it('allows sub-schemas properties to set a default value', () => {
     const properties = createBlogSchema().getProperties()
     properties.author.defaultValue = () =>
       properties.author.type.makeDefault({
         name: 'Mr. Mista',
         active: false
       })
-    expect(createNamedSchemata(properties).makeDefault()).toEqual({
+    assert.deepStrictEqual(createNamedSchemata(properties).makeDefault(), {
       title: null,
       body: null,
       author: {
@@ -105,12 +107,12 @@ describe('#makeDefault()', () => {
     })
   })
 
-  test('does not cast sub-schema property default values', () => {
+  it('does not cast sub-schema property default values', () => {
     const schema = createBlogSchema()
     const properties = schema.getProperties()
     properties.author.defaultValue = null
 
-    expect(createNamedSchemata(properties).makeDefault()).toEqual({
+    assert.deepStrictEqual(createNamedSchemata(properties).makeDefault(), {
       title: null,
       body: null,
       author: null,
@@ -118,17 +120,17 @@ describe('#makeDefault()', () => {
     })
   })
 
-  test('create new instances for Array type', () => {
+  it('create new instances for Array type', () => {
     const schema = createBlogSchema()
     const blogA = schema.makeDefault()
     const blogB = schema.makeDefault()
 
     blogA.comments.push(1)
-    expect(blogA.comments).toHaveLength(1)
-    expect(blogB.comments).toHaveLength(0)
+    assert.strictEqual(blogA.comments.length, 1)
+    assert.strictEqual(blogB.comments.length, 0)
   })
 
-  test('makes default on sub-schema objects if type is a function', () => {
+  it('makes default on sub-schema objects if type is a function', () => {
     const schema = createBlogSchema()
 
     const obj = { title: 'Mr. Blogger’s Post', author: { name: 'Mr. Blogger' } }
@@ -144,7 +146,7 @@ describe('#makeDefault()', () => {
       return createContactSchema()
     }
 
-    expect(schema.makeDefault(obj)).toEqual({
+    assert.deepStrictEqual(schema.makeDefault(obj), {
       title: 'Mr. Blogger’s Post',
       body: null,
       author: {

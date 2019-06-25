@@ -1,12 +1,13 @@
+const assert = require('assert')
 const schemata = require('../schemata')
 const helpers = require('./helpers')
 const createContactSchema = helpers.createContactSchema
 const createBlogSchema = helpers.createBlogSchema
 
 describe('#makeBlank()', () => {
-  test('returns correct empty object with no parameters', () => {
+  it('returns correct empty object with no parameters', () => {
     const schema = createContactSchema()
-    expect(schema.makeBlank()).toEqual({
+    assert.deepStrictEqual(schema.makeBlank(), {
       name: null,
       age: null,
       active: null,
@@ -15,7 +16,7 @@ describe('#makeBlank()', () => {
     })
   })
 
-  test('creates empty objects for objects type', () => {
+  it('creates empty objects for objects type', () => {
     const schema = schemata({
       name: 'Foo',
       properties: {
@@ -24,10 +25,10 @@ describe('#makeBlank()', () => {
         }
       }
     })
-    expect(schema.makeBlank()).toEqual({ contacts: {} })
+    assert.deepStrictEqual(schema.makeBlank(), { contacts: {} })
   })
 
-  test('creates empty arrays for array type', () => {
+  it('creates empty arrays for array type', () => {
     const schema = schemata({
       name: 'Foo',
       properties: {
@@ -36,42 +37,42 @@ describe('#makeBlank()', () => {
         }
       }
     })
-    expect(schema.makeBlank()).toEqual({ images: [] })
+    assert.deepStrictEqual(schema.makeBlank(), { images: [] })
   })
 
-  test('creates blank sub-schema objects', () => {
+  it('creates blank sub-schema objects', () => {
     const schema = createBlogSchema()
     const blog = schema.makeBlank()
 
-    expect(blog).toHaveProperty('author')
-    expect(blog.author).toHaveProperty('name')
+    assert.notStrictEqual(blog.author, undefined)
+    assert.notStrictEqual(blog.author.name, undefined)
   })
 
-  test('creates blank sub-schema objects if type is a function', () => {
+  it('creates blank sub-schema objects if type is a function', () => {
     const schema = createBlogSchema()
 
     schema.getProperties().author.type = () => createContactSchema()
 
     const blog = schema.makeBlank()
 
-    expect(blog).toHaveProperty('author')
-    expect(blog.author).toHaveProperty('name')
+    assert.notStrictEqual(blog.author, undefined)
+    assert.notStrictEqual(blog.author.name, undefined)
   })
 
-  test('creates blank array for sub-schema Array', () => {
+  it('creates blank array for sub-schema Array', () => {
     const schema = createBlogSchema()
     const blog = schema.makeBlank()
 
-    expect(blog.comments).toBeInstanceOf(Array)
+    assert.strictEqual(blog.comments.length, 0)
   })
 
-  test('create new instances for Array type', () => {
+  it('create new instances for Array type', () => {
     const schema = createBlogSchema()
     const blogA = schema.makeBlank()
     const blogB = schema.makeBlank()
 
     blogA.comments.push(1)
-    expect(blogA.comments).toHaveLength(1)
-    expect(blogB.comments).toHaveLength(0)
+    assert.strictEqual(blogA.comments.length, 1)
+    assert.strictEqual(blogB.comments.length, 0)
   })
 })

@@ -1,13 +1,14 @@
 const schemata = require('../schemata')
+const assert = require('assert')
 
 describe('#schema', () => {
-  test('should throw if name is missing', () => {
-    expect(() => {
+  it('should throw if name is missing', () => {
+    assert.throws(() => {
       schemata()
-    }).toThrowError(/name is required/)
+    }, /name is required/)
   })
 
-  test('should not throw if properties are missing', () => {
+  it('should not throw if properties are missing', () => {
     try {
       schemata({ name: 'Person' })
     } catch (e) {
@@ -15,22 +16,22 @@ describe('#schema', () => {
     }
   })
 
-  test('should default to an empty schemata', () => {
+  it('should default to an empty schemata', () => {
     const empty = schemata({ name: 'Person' })
-    expect(empty.getProperties()).toEqual({})
+    assert.deepStrictEqual(empty.getProperties(), {})
   })
 
-  test('should get schema name', () => {
+  it('should get schema name', () => {
     const schema = schemata({ name: 'Person', description: 'A real person' })
-    expect(schema.getName()).toEqual('Person')
+    assert.strictEqual(schema.getName(), 'Person')
   })
 
-  test('should get schema description', () => {
+  it('should get schema description', () => {
     const schema = schemata({ name: 'Person', description: 'A real person' })
-    expect(schema.getDescription()).toEqual('A real person')
+    assert.strictEqual(schema.getDescription(), 'A real person')
   })
 
-  test('should throw an error if a defaultValue is neither a primitive value or a function', () => {
+  it('should throw an error if a defaultValue is neither a primitive value or a function', () => {
     const badSchemas = [
       { a: { defaultValue: [] } },
       { a: { defaultValue: {} } },
@@ -53,15 +54,15 @@ describe('#schema', () => {
     ]
 
     badSchemas.forEach(properties => {
-      expect(() => {
+      assert.throws(() => {
         schemata({ name: 'Bad', properties })
-      }).toThrowError()
+      })
     })
 
     goodSchemas.forEach(properties => {
-      expect(() => {
+      assert.doesNotThrow(() => {
         schemata({ name: 'Good', properties })
-      }).not.toThrowError()
+      })
     })
   })
 })

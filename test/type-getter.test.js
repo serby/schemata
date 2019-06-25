@@ -3,17 +3,17 @@ const schemata = require('../schemata')
 const assert = require('assert')
 
 describe('#getType()', () => {
-  test('should return type if it is a not a function', () => {
+  it('should return type if it is a not a function', () => {
     const type = 'string'
     assert.strictEqual(getType(type), type)
   })
 
-  test('should return type if it is a schemata instance', () => {
+  it('should return type if it is a schemata instance', () => {
     const schema = schemata({ name: 'Person' })
     assert.strictEqual(getType(schema), schema)
   })
 
-  test('should call the function with the model if provided', () => {
+  it('should call the function with the model if provided', () => {
     const model = { a: 1 }
     const schema = schemata({ name: 'Person' })
     const type = m => {
@@ -23,7 +23,7 @@ describe('#getType()', () => {
     assert.deepStrictEqual(getType(type, model), schema)
   })
 
-  test('should return the original argument if the value returned is not a schemata instance', () => {
+  it('should return the original argument if the value returned is not a schemata instance', () => {
     assert.strictEqual(getType(Object), Object)
   })
 })

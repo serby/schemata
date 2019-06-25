@@ -59,41 +59,39 @@ function createSchemaWithAsyncSubschema() {
 }
 
 describe('#validate()', () => {
-  test('does not error on schemas without validation', done => {
+  it('does not error on schemas without validation', done => {
     const schema = createContactSchema()
     schema.validate(
       schema.makeDefault({ name: 'Paul' }),
       'all',
       (ignoreError, errors) => {
-        expect(errors).toEqual({})
+        assert.deepStrictEqual(errors, {})
         done()
       }
     )
   })
 
-  test('returns promise if no callback', async done => {
+  it('returns promise if no callback', async () => {
     const schema = createContactSchema()
     const errors = await schema.validate(
       schema.makeDefault({ name: 'Paul' }),
       'all'
     )
-    expect(errors).toEqual({})
-    done()
+    assert.deepStrictEqual(errors, {})
   })
 
-  test('returns promise with errors', async done => {
+  it('returns promise with errors', async () => {
     const properties = createContactSchema().getProperties()
-    expect(properties.name).not.toHaveProperty('validators')
+    assert.deepStrictEqual(properties.name.validators, undefined)
     properties.name.validators = [required]
     const schema = createNamedSchemata(properties)
     const errors = await schema.validate(schema.makeDefault({}), 'all')
-    expect(errors).toEqual({ name: 'Full Name is required' })
-    done()
+    assert.deepStrictEqual(errors, { name: 'Full Name is required' })
   })
 
-  test('returns error for missing property', done => {
+  it('returns error for missing property', done => {
     const properties = createContactSchema().getProperties()
-    expect(properties.name).not.toHaveProperty('validators')
+    assert.deepStrictEqual(properties.name.validators, undefined)
     properties.name.validators = {
       all: [required]
     }
@@ -102,15 +100,15 @@ describe('#validate()', () => {
       schema.makeDefault({ name: '' }),
       'all',
       (ignoreError, errors) => {
-        expect(errors).toEqual({ name: 'Full Name is required' })
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
         done()
       }
     )
   })
 
-  test('uses the [all] set by default', done => {
+  it('uses the [all] set by default', done => {
     const properties = createContactSchema().getProperties()
-    expect(properties.name).not.toHaveProperty('validators')
+    assert.deepStrictEqual(properties.name.validators, undefined)
     properties.name.validators = {
       all: [required]
     }
@@ -120,15 +118,15 @@ describe('#validate()', () => {
       schema.makeDefault({ name: '' }),
       '',
       (ignoreError, errors) => {
-        expect(errors).toEqual({ name: 'Full Name is required' })
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
         done()
       }
     )
   })
 
-  test('returns error for missing property but not for valid property', done => {
+  it('returns error for missing property but not for valid property', done => {
     const properties = createContactSchema().getProperties()
-    expect(properties.name).not.toHaveProperty('validators')
+    assert.deepStrictEqual(properties.name.validators, undefined)
     properties.name.validators = {
       all: [required]
     }
@@ -143,13 +141,13 @@ describe('#validate()', () => {
       schema.makeDefault({ name: '', age: 33 }),
       'all',
       (ignoreError, errors) => {
-        expect(errors).toEqual({ name: 'Full Name is required' })
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
         done()
       }
     )
   })
 
-  test('uses all validators', done => {
+  it('uses all validators', done => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
@@ -160,7 +158,7 @@ describe('#validate()', () => {
       schema.makeDefault({ name: 'A' }),
       'all',
       (ignoreError, errors) => {
-        expect(errors).toEqual({
+        assert.deepStrictEqual(errors, {
           name: 'Full Name must be between 2 and 4 in length'
         })
         done()
@@ -168,7 +166,7 @@ describe('#validate()', () => {
     )
   })
 
-  test('validates only for tag passed in', done => {
+  it('validates only for tag passed in', done => {
     const properties = createContactSchema().getProperties()
 
     // Adding required validation to a schema property with a tag
@@ -187,15 +185,13 @@ describe('#validate()', () => {
       'all',
       'update',
       (ignoreError, errors) => {
-        expect(errors).toEqual({
-          name: 'Full Name is required'
-        })
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
         done()
       }
     )
   })
 
-  test('validates by tag and by set', done => {
+  it('validates by tag and by set', done => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
@@ -216,15 +212,13 @@ describe('#validate()', () => {
       'all',
       'newTag',
       (ignoreError, errors) => {
-        expect(errors).toEqual({
-          name: 'Full Name is required'
-        })
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
         done()
       }
     )
   })
 
-  test('allows tag and set to be optional parameters', done => {
+  it('allows tag and set to be optional parameters', done => {
     const properties = createContactSchema().getProperties()
 
     properties.name.validators = {
@@ -236,7 +230,7 @@ describe('#validate()', () => {
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      expect(errors).toEqual({
+      assert.deepStrictEqual(errors, {
         name: 'Full Name is required',
         age: 'Age is required'
       })
@@ -244,7 +238,7 @@ describe('#validate()', () => {
     })
   })
 
-  test('Validates sub-schemas', () => {
+  it('Validates sub-schemas', () => {
     const properties = createBlogSchema().getProperties()
     const subschemaProperties = properties.author.type.getProperties()
     subschemaProperties.age.validators = {
@@ -253,7 +247,7 @@ describe('#validate()', () => {
     properties.author.type = createNamedSchemata(subschemaProperties)
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      expect(errors).toEqual({
+      assert.deepStrictEqual(errors, {
         author: {
           age: 'Age is required'
         }
@@ -261,7 +255,7 @@ describe('#validate()', () => {
     })
   })
 
-  test('validates sub-schemas where subschema is returned from the type property function', done => {
+  it('validates sub-schemas where subschema is returned from the type property function', done => {
     const properties = createBlogSchema().getProperties()
     const subschemaProperties = createContactSchema().getProperties()
     const object = { author: 1 }
@@ -279,14 +273,14 @@ describe('#validate()', () => {
     })
   })
 
-  test('Validates sub-schemas property is not listed in errors when there are no errors', () => {
+  it('Validates sub-schemas property is not listed in errors when there are no errors', () => {
     const schema = createBlogSchema()
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      expect(errors).toEqual({})
+      assert.deepStrictEqual(errors, {})
     })
   })
 
-  test('Validates any defined validators even on sub-schemas', () => {
+  it('Validates any defined validators even on sub-schemas', () => {
     const properties = createBlogSchema().getProperties()
     properties.author.validators = {
       all: [
@@ -300,17 +294,17 @@ describe('#validate()', () => {
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      expect(errors).toEqual({ author: 'Bad' })
+      assert.deepStrictEqual(errors, { author: 'Bad' })
     })
   })
 
-  test('validators failure should prevent their sub-schema validation', () => {
+  it('validators failure should prevent their sub-schema validation', () => {
     const properties = createBlogSchema().getProperties()
     properties.author.type.getProperties().age.validators = {
       all: [
         createValidatorAllowingFailureMessageOverride(
           (key, object, callback) => {
-            expect('This should not get called').toBe(false)
+            assert.deepStrictEqual('This should not get called', false)
             callback(null)
           },
           'sub-schema property validation (This should not be seen)'
@@ -329,11 +323,13 @@ describe('#validate()', () => {
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (ignoreError, errors) => {
-      expect(errors).toEqual({ author: 'First level property validation' })
+      assert.deepStrictEqual(errors, {
+        author: 'First level property validation'
+      })
     })
   })
 
-  test('validators failure should not prevent other properties’ sub-schemas from validating', done => {
+  it('validators failure should not prevent other properties’ sub-schemas from validating', done => {
     // this is an edge case, and having the required validator on author is crucial. without it,
     // the bug won’t manifest itself
     const properties = createBlogSchema().getProperties()
@@ -366,7 +362,7 @@ describe('#validate()', () => {
     properties.author.type = createNamedSchemata(subschemaProperties)
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeBlank(), (error, errors) => {
-      expect(errors).toEqual({
+      assert.deepStrictEqual(errors, {
         author: { age: 'sub-schema property validation' },
         title: 'First level property validation failure'
       })
@@ -374,7 +370,7 @@ describe('#validate()', () => {
     })
   })
 
-  test('Validates array sub-schemas', done => {
+  it('Validates array sub-schemas', done => {
     const properties = createBlogSchema().getProperties()
     const subschemaProperties = properties.comments.type.arraySchema.getProperties()
 
@@ -395,18 +391,19 @@ describe('#validate()', () => {
     model.comments.push({ email: 'dom@test.com', comment: null })
 
     schema.validate(model, (ignoreError, errors) => {
-      expect(errors.comments[0]).toEqual({
+      assert.deepStrictEqual(errors.comments[0], {
         email: 'Email is required',
         comment: 'Comment is required'
       })
-      expect(errors.comments[1]).toEqual({ email: 'Email is required' })
-      expect(errors.comments[2]).toEqual({ comment: 'Comment is required' })
-
+      assert.deepStrictEqual(errors.comments[1], { email: 'Email is required' })
+      assert.deepStrictEqual(errors.comments[2], {
+        comment: 'Comment is required'
+      })
       done()
     })
   })
 
-  test('Validates array sub-schemas and maintains order of errors for async validators', done => {
+  it('Validates array sub-schemas and maintains order of errors for async validators', done => {
     const schema = createSchemaWithAsyncSubschema()
 
     const model = {
@@ -421,12 +418,12 @@ describe('#validate()', () => {
     }
 
     schema.validate(model, (error, errors) => {
-      expect(errors).toEqual(validationErrors)
+      assert.deepStrictEqual(errors, validationErrors)
       done(error)
     })
   })
 
-  test('Does not throw a stack size error when validating a large array set', done => {
+  it('Does not throw a stack size error when validating a large array set', done => {
     const schema = createBlogSchema()
     const model = schema.makeBlank()
 
@@ -441,7 +438,7 @@ describe('#validate()', () => {
     }, 'should not thrown an exception')
   })
 
-  test('should cause an error if a subschema is passed un-invoked', done => {
+  it('should cause an error if a subschema is passed un-invoked', done => {
     const properties = createBlogSchemaWithSubschemaNotInitialised().getProperties()
 
     const testValues = [undefined, null, '', 0, []]
@@ -459,7 +456,7 @@ describe('#validate()', () => {
         model.comments = value
 
         schema.validate(model, (ignoreError, errors) => {
-          expect(errors).toEqual({})
+          assert.deepStrictEqual(errors, {})
           next()
         })
       },
@@ -467,7 +464,7 @@ describe('#validate()', () => {
     )
   })
 
-  test('does not try and validate array sub-schemas that are falsy or []', done => {
+  it('does not try and validate array sub-schemas that are falsy or []', done => {
     const properties = createBlogSchema().getProperties()
     const testValues = [undefined, null, '', 0, []]
     const subschema = properties.comments.type.arraySchema.getProperties()
@@ -484,7 +481,7 @@ describe('#validate()', () => {
         model.comments = value
 
         schema.validate(model, (ignoreError, errors) => {
-          expect(errors).toEqual({})
+          assert.deepStrictEqual(errors, {})
           next()
         })
       },
@@ -492,7 +489,7 @@ describe('#validate()', () => {
     )
   })
 
-  test('does not try and validate sub-schemas that are falsy', done => {
+  it('does not try and validate sub-schemas that are falsy', done => {
     const kidSchema = createKidSchema()
     const kid = kidSchema.makeBlank()
     const emptyValues = [undefined, null, '', 0]
@@ -503,7 +500,7 @@ describe('#validate()', () => {
         kid.toy = value
 
         kidSchema.validate(kid, (ignoreError, errors) => {
-          expect(errors).toEqual({})
+          assert.deepStrictEqual(errors, {})
           next()
         })
       },
@@ -511,7 +508,7 @@ describe('#validate()', () => {
     )
   })
 
-  test('allows error response to be a string instead of Error object', done => {
+  it('allows error response to be a string instead of Error object', done => {
     const properties = createContactSchema().getProperties()
     properties.name.validators = {
       all: [
@@ -524,19 +521,19 @@ describe('#validate()', () => {
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ name: '' }), (ignoreError, errors) => {
-      expect(errors).toEqual({ name: 'Full Name is required' })
+      assert.deepStrictEqual(errors, { name: 'Full Name is required' })
       done()
     })
   })
 
-  test('should not call the callback multiple times when omitting optional args', done => {
+  it('should not call the callback multiple times when omitting optional args', done => {
     const schema = createBlogSchema()
     schema.validate(schema.makeDefault({ comments: [{}, {}] }), 'all', () => {
       done()
     })
   })
 
-  test('should pass the parent to callback if it has five arguments and is a subschema', done => {
+  it('should pass the parent to callback if it has five arguments and is a subschema', done => {
     const properties = createBlogSchema().getProperties()
     const subschema = properties.author.type.getProperties()
     let schemaParent = null
@@ -555,12 +552,12 @@ describe('#validate()', () => {
     properties.author.type = createNamedSchemata(subschema)
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
-      expect(schemaParent).toEqual(fixtures.blog)
+      assert.deepStrictEqual(schemaParent, fixtures.blog)
       done()
     })
   })
 
-  test('should pass the schema as parent to callback if it has five arguments and is not a subschema', done => {
+  it('should pass the schema as parent to callback if it has five arguments and is not a subschema', done => {
     const properties = createBlogSchema().getProperties()
     let schemaParent
     properties.title.validators = {
@@ -576,12 +573,12 @@ describe('#validate()', () => {
     }
     const schema = createNamedSchemata(properties)
     schema.validate(schema.makeDefault({ author: { name: 'test' } }), () => {
-      expect(schemaParent).toEqual(fixtures.blog)
+      assert.deepStrictEqual(schemaParent, fixtures.blog)
       done()
     })
   })
 
-  test('should not leak parents across validates', done => {
+  it('should not leak parents across validates', done => {
     const properties = createBlogSchema().getProperties()
     const schemaParents = []
     const expectedParents = fixtures.expectedParents
@@ -617,7 +614,7 @@ describe('#validate()', () => {
       done
     )
   })
-  test('should allow promise validators', async done => {
+  it('should allow promise validators', async () => {
     const properties = createContactSchema().getProperties()
     properties.name.validators = [
       async (propertyName, name, object) =>
@@ -628,10 +625,9 @@ describe('#validate()', () => {
       schema.makeDefault({ name: 'Paul' }),
       'all'
     )
-    expect(errors).toEqual({ name: 'name Full Name Paul' })
-    done()
+    assert.deepStrictEqual(errors, { name: 'name Full Name Paul' })
   })
-  test('should allow non-async validators', async done => {
+  it('should allow non-async validators', async () => {
     const properties = createContactSchema().getProperties()
     properties.name.validators = [
       (propertyName, name, object) =>
@@ -639,10 +635,9 @@ describe('#validate()', () => {
     ]
     const schema = createNamedSchemata(properties)
     const errors = await schema.validate(schema.makeDefault({ name: 'Paul' }))
-    expect(errors).toEqual({ name: 'name Full Name Paul' })
-    done()
+    assert.deepStrictEqual(errors, { name: 'name Full Name Paul' })
   })
-  test('should allow callback, promise and non-async validators', async done => {
+  it('should allow callback, promise and non-async validators', async () => {
     // Regular function
     const isOfWizardingAge = (propertyName, name, entity) =>
       entity[propertyName] < 17 && 'Sorry you are not of age'
@@ -666,7 +661,6 @@ describe('#validate()', () => {
     const errors = await schema.validate(
       schema.makeDefault({ name: 'Paul', age: 18 })
     )
-    expect(errors).toEqual({ age: 'age Age 18' })
-    done()
+    assert.deepStrictEqual(errors, { age: 'age Age 18' })
   })
 })

@@ -11,76 +11,76 @@ const typeMap = castFixtures.typeMap
 const required = require('validity-required')
 
 describe('#cast()', () => {
-  test('converts types correctly', () => {
+  it('converts types correctly', () => {
     Object.keys(assertions).forEach(type => {
-      // Even = expected, odd = supplied
+      // Even = assert.strictEqualed, odd = supplied
       for (let i = 0; i < assertions[type].length; i += 2) {
         let cast
         cast = castProperty(typeMap[type], assertions[type][i + 1])
-        expect(cast).toEqual(assertions[type][i])
+        assert.strictEqual(cast, assertions[type][i])
       }
     })
   })
 
-  test('converts arrays correctly', () => {
+  it('converts arrays correctly', () => {
     ;[[], null, ''].forEach(value => {
-      expect(Array.isArray(castProperty(Array, value))).toBe(true)
-      expect(castProperty(Array, value)).toHaveLength(0)
+      assert.strictEqual(Array.isArray(castProperty(Array, value)), true)
+      assert.strictEqual(castProperty(Array, value).length, 0)
     })
     ;[[1], ['a']].forEach(value => {
-      expect(Array.isArray(castProperty(Array, value))).toBe(true)
-      expect(castProperty(Array, value)).toHaveLength(1)
+      assert.strictEqual(Array.isArray(castProperty(Array, value)), true)
+      assert.strictEqual(castProperty(Array, value).length, 1)
     })
   })
 
-  test('converts object correctly', () => {
+  it('converts object correctly', () => {
     ;['', 'hello', [], undefined].forEach(value => {
-      expect(Object.keys(castProperty(Object, value))).toHaveLength(0)
+      assert.strictEqual(Object.keys(castProperty(Object, value)).length, 0)
     })
     ;[{ a: 'b' }].forEach(value => {
-      expect(Object.keys(castProperty(Object, value))).toHaveLength(1)
+      assert.strictEqual(Object.keys(castProperty(Object, value)).length, 1)
     })
-    expect(true).toBe(castProperty(Object, null) === null)
+    assert.strictEqual(castProperty(Object, null) === null, true)
   })
 
-  test('throws exception on unknown type', () => {
-    expect(() => {
+  it('throws exception on unknown type', () => {
+    assert.throws(() => {
       castProperty(undefined)
-    }).toThrowError(/Missing type/)
+    }, /Missing type/)
   })
 
-  test('converts number types of properties correctly', () => {
+  it('converts number types of properties correctly', () => {
     const schema = createContactSchema()
     const type = 'number'
     let cast
 
     for (let i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ age: assertions[type][i + 1] })
-      expect(cast).toEqual({ age: assertions[type][i] })
+      assert.deepStrictEqual(cast, { age: assertions[type][i] })
     }
   })
 
-  test('converts boolean types of properties correctly', () => {
+  it('converts boolean types of properties correctly', () => {
     const schema = createContactSchema()
     const type = 'boolean'
     let cast
 
     for (let i = 0; i < assertions[type].length; i += 2) {
       cast = schema.cast({ active: assertions[type][i + 1] })
-      expect(cast).toEqual({
+      assert.deepStrictEqual(cast, {
         active: assertions[type][i]
       })
     }
   })
 
-  test('does not effect untyped properties', () => {
+  it('does not effect untyped properties', () => {
     const schema = createContactSchema()
-    expect(schema.cast({ phoneNumber: '555-0923' })).toEqual({
+    assert.deepStrictEqual(schema.cast({ phoneNumber: '555-0923' }), {
       phoneNumber: '555-0923'
     })
   })
 
-  test('casts properties that have a subschema', () => {
+  it('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
     const obj = schema.cast({
@@ -89,10 +89,10 @@ describe('#cast()', () => {
       comments: []
     })
 
-    expect(obj.author.dateOfBirth).toBeInstanceOf(Date)
+    assert.strictEqual(obj.author.dateOfBirth instanceof Date, true)
   })
 
-  test('casts properties that have a subschema', () => {
+  it('casts properties that have a subschema', () => {
     const schema = createBlogSchema()
 
     const initialObj = {
@@ -107,10 +107,10 @@ describe('#cast()', () => {
     }
 
     const obj = schema.cast(initialObj)
-    expect(obj.author.dateOfBirth).toBeInstanceOf(Date)
+    assert.strictEqual(obj.author.dateOfBirth instanceof Date, true)
   })
 
-  test('casts properties that have null subschemas', () => {
+  it('casts properties that have null subschemas', () => {
     const schema = createBlogSchema()
 
     const initialObj = { title: 'My Blog', author: null, comments: [] }
@@ -124,7 +124,7 @@ describe('#cast()', () => {
     assert.strictEqual(obj.author, null)
   })
 
-  test('casts properties that are an array of subschemas', () => {
+  it('casts properties that are an array of subschemas', () => {
     const schema = createBlogSchema()
 
     const obj = schema.cast({
@@ -133,10 +133,10 @@ describe('#cast()', () => {
       comments: [{ created: new Date().toISOString() }]
     })
 
-    expect(obj.comments[0].created).toBeInstanceOf(Date)
+    assert.strictEqual(obj.comments[0].created instanceof Date, true)
   })
 
-  test('casts properties that have a conditional/function type', () => {
+  it('casts properties that have a conditional/function type', () => {
     const vehicleSchema = createNamedSchemata({
       type: { type: String },
       tyreWear: {
@@ -174,9 +174,9 @@ describe('#cast()', () => {
     assert.strictEqual(bike.tyreWear.front, 0)
     assert.strictEqual(bike.tyreWear.back, 2)
 
-    expect(car.tyreWear.nearsideFront).toEqual(0)
-    expect(car.tyreWear.offsideFront).toEqual(2)
-    expect(car.tyreWear.nearsideBack).toEqual(3)
-    expect(car.tyreWear.offsideBack).toEqual(5)
+    assert.strictEqual(car.tyreWear.nearsideFront, 0)
+    assert.strictEqual(car.tyreWear.offsideFront, 2)
+    assert.strictEqual(car.tyreWear.nearsideBack, 3)
+    assert.strictEqual(car.tyreWear.offsideBack, 5)
   })
 })

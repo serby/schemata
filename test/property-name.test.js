@@ -1,23 +1,27 @@
+const assert = require('assert')
 const helpers = require('./helpers')
 const createContactSchema = helpers.createContactSchema
 
 describe('#propertyName()', () => {
-  test('returns name when available', () => {
+  it('returns name when available', () => {
     const schema = createContactSchema()
-    expect(schema.propertyName('name')).toBe('Full Name')
+    assert.strictEqual(schema.propertyName('name'), 'Full Name')
   })
 
-  test('returns converted name', () => {
+  it('returns converted name', () => {
     const schema = createContactSchema()
-    expect(schema.propertyName('age')).toEqual('Age')
+    assert.strictEqual(schema.propertyName('age'), 'Age')
   })
 
-  test('throws error on unspecified property', () => {
+  it('throws error on unspecified property', () => {
     const schema = createContactSchema()
     const propertyName = 'Wobble'
 
-    expect(() => {
-      schema.propertyName(propertyName)
-    }).toThrow(`No property '${propertyName}' in schema`)
+    assert.throws(
+      () => {
+        schema.propertyName(propertyName)
+      },
+      { message: `No property '${propertyName}' in schema` }
+    )
   })
 })

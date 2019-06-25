@@ -19,7 +19,8 @@
   ],
   "dependencies": {
     "is-primitive": "^3.0.0",
-    "lodash.clonedeep": "^4.5.0"
+    "lodash.clonedeep": "^4.5.0",
+    "mocha": "^6.1.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
@@ -40,6 +41,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.8.0",
+    "nyc": "^14.1.1",
     "prettier": "^1.17.1",
     "required": "^1.0.0",
     "validity": "^1.1.1",
@@ -60,19 +62,13 @@
     "lint:js": "eslint . --cache --ext '.js'",
     "prettier": "prettier --write '**/*.{js}'",
     "test": "yarn test:code && yarn lint:js",
-    "test:code": "jest",
-    "test:coverage": "jest --coverage --watch",
+    "test:code": "nyc mocha",
+    "test:watch": "mocha --watch",
     "build": "rm -rf dist && mkdir dist && babel schemata.js -d dist && babel lib -d dist/lib",
     "prepublish": "yarn test && yarn build"
   },
   "engines": {
     "node": ">= 8"
   },
-  "license": "ISC",
-  "jest": {
-    "testPathIgnorePatterns": [
-      "/dist/",
-      "/node_modules/"
-    ]
-  }
+  "license": "ISC"
 }
