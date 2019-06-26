@@ -5,7 +5,7 @@
 [![Build Status](https://api.travis-ci.org/serby/schemata.svg?branch=master)](http://travis-ci.org/serby/schemata)
 [![Coverage Status](https://img.shields.io/coveralls/serby/schemata/master.svg?style=flat)](https://coveralls.io/r/serby/schemata?branch=master)
 [![Dependency Status](https://img.shields.io/david/serby/schemata.svg)](https://david-dm.org/serby/schemata)
-[![NPM version](https://img.shields.io/npm/v/throat.svg)](https://www.npmjs.com/package/throat)
+[![NPM version](https://img.shields.io/npm/v/schemata.svg)](https://www.npmjs.com/package/throat)
 [![Greenkeeper badge](https://badges.greenkeeper.io/serby/schemata.svg)](https://greenkeeper.io/)
 
 schemata allows you to define schemas to ensure your objects are well formed.
