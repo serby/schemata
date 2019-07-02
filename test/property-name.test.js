@@ -17,8 +17,11 @@ describe('#propertyName()', () => {
     const schema = createContactSchema()
     const propertyName = 'Wobble'
 
-    assert.throws(() => {
-      schema.propertyName(propertyName)
-    }, `No property '${propertyName}' in schema`)
+    assert.throws(
+      () => {
+        schema.propertyName(propertyName)
+      },
+      { message: `No property '${propertyName}' in schema` }
+    )
   })
 })
