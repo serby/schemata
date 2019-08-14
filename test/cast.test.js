@@ -15,8 +15,7 @@ describe('#cast()', () => {
     Object.keys(assertions).forEach(type => {
       // Even = assert.strictEqualed, odd = supplied
       for (let i = 0; i < assertions[type].length; i += 2) {
-        let cast
-        cast = castProperty(typeMap[type], assertions[type][i + 1])
+        const cast = castProperty(typeMap[type], assertions[type][i + 1])
         assert.strictEqual(cast, assertions[type][i])
       }
     })
