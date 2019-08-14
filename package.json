@@ -59,7 +59,7 @@
     "./dist"
   ],
   "scripts": {
-    "lint:js": "eslint . --cache --ext '.js'",
+    "lint:js": "eslint . -f unix --cache --ext '.js'",
     "prettier": "prettier --write '**/*.{js}'",
     "test": "yarn test:code && yarn lint:js",
     "test:code": "nyc mocha",
