@@ -23,7 +23,7 @@
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
+    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/runtime": "^7.4.5",
