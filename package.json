@@ -42,7 +42,7 @@
     "jest": "^24.8.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
-    "prettier": "^1.17.1",
+    "prettier": "^2.0.1",
     "required": "^1.0.0",
     "validity": "^1.1.1",
     "validity-length": "^2.0.0",
