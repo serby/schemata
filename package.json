@@ -41,7 +41,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.8.0",
     "mocha": "^6.1.4",
-    "nyc": "^14.1.1",
+    "nyc": "^15.1.0",
     "prettier": "^1.17.1",
     "required": "^1.0.0",
     "validity": "^1.1.1",
