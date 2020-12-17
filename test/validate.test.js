@@ -728,4 +728,22 @@ describe('#validate()', () => {
     )
     assert.deepStrictEqual(errors, { age: 'age Age 18' })
   })
+
+  it('should throw if bad number of arguments', async () => {
+    const properties = createContactSchema().getProperties()
+    assert.deepStrictEqual(properties.name.validators, undefined)
+    const schema = createNamedSchemata(properties)
+
+    await assert.rejects(
+      () =>
+        schema.validate(
+          schema.makeDefault({ name: '' }),
+          'set',
+          'tag',
+          'foo',
+          'bar'
+        ),
+      Error
+    )
+  })
 })
