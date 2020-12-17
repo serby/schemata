@@ -75,4 +75,17 @@ describe('#makeBlank()', () => {
     assert.strictEqual(blogA.comments.length, 1)
     assert.strictEqual(blogB.comments.length, 0)
   })
+
+  it('throw for invalid property types', () => {
+    const schema = schemata({
+      name: 'Foo',
+      properties: {
+        images: {
+          type: { foo: 'bar' }
+        }
+      }
+    })
+
+    assert.throws(() => schema.makeBlank(), Error)
+  })
 })
