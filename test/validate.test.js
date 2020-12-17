@@ -238,6 +238,71 @@ describe('#validate()', () => {
     })
   })
 
+  it('uses the [all] set shorthand by default', done => {
+    const properties = createContactSchema().getProperties()
+    assert.deepStrictEqual(properties.name.validators, undefined)
+    properties.name.validators = [required]
+    properties.age.validators = {
+      test: [required]
+    }
+
+    const schema = createNamedSchemata(properties)
+
+    schema.validate(
+      schema.makeDefault({ name: '', age: null }),
+      (ignoreError, errors) => {
+        assert.deepStrictEqual(errors, { name: 'Full Name is required' })
+        done()
+      }
+    )
+  })
+
+  it('uses the [all] set by default with validation set', done => {
+    const properties = createContactSchema().getProperties()
+    assert.deepStrictEqual(properties.name.validators, undefined)
+    properties.name.validators = {
+      all: [required]
+    }
+    properties.age.validators = {
+      test: [required]
+    }
+    const schema = createNamedSchemata(properties)
+
+    schema.validate(
+      schema.makeDefault({ name: '', age: null }),
+      'test',
+      (ignoreError, errors) => {
+        assert.deepStrictEqual(errors, {
+          name: 'Full Name is required',
+          age: 'Age is required'
+        })
+        done()
+      }
+    )
+  })
+
+  it('uses the [all] set shorthand by default with validation set', done => {
+    const properties = createContactSchema().getProperties()
+    assert.deepStrictEqual(properties.name.validators, undefined)
+    properties.name.validators = [required]
+    properties.age.validators = {
+      test: [required]
+    }
+    const schema = createNamedSchemata(properties)
+
+    schema.validate(
+      schema.makeDefault({ name: '', age: null }),
+      'test',
+      (ignoreError, errors) => {
+        assert.deepStrictEqual(errors, {
+          name: 'Full Name is required',
+          age: 'Age is required'
+        })
+        done()
+      }
+    )
+  })
+
   it('Validates sub-schemas', () => {
     const properties = createBlogSchema().getProperties()
     const subschemaProperties = properties.author.type.getProperties()
